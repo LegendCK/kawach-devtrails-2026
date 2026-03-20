@@ -482,6 +482,69 @@ Riders can see their claim status in real time, Active, Under Review, Approved, 
 When a coordinated fraud ring is detected in a zone, Kawach does not freeze all claims from that zone. It freezes only the claims belonging to the flagged device cluster. Legitimate riders in the same zone who show normal accelerometer variance, normal cell tower data, and normal zone affinity continue to receive payouts without interruption. The syndicate is isolated; the genuine disruption event is not.
  
 ---
+
+## Insurance Reputation Score
+ 
+### The Concept
+ 
+Every Kawach rider carries a dynamic **Insurance Reputation Score (0-100)**, a portable, behaviour-driven trust identity built from their real activity on the platform. It is the first financial trust score designed specifically for India's gig economy.
+ 
+Unlike traditional credit scores that require bank history or employment records, the Kawach reputation score is built entirely from verified gig work behaviour. A rider who has never had a bank loan, never filed a tax return, and never held a formal job can build a high reputation score simply by working consistently and honestly.
+ 
+The score persists across weeks, compounds over time, and travels with the rider. It is not reset by a single bad event. It is not zone-dependent. It is theirs.
+ 
+### Why This Is Different
+ 
+Every other component of Kawach resets weekly, premiums, coverage limits, payout caps. The Insurance Reputation Score is the only feature that gets better the longer a rider uses the platform. This creates three things simultaneously that the rest of the architecture handles separately:
+ 
+- A fraud deterrent (riders with high scores have too much to lose)
+- A dynamic pricing engine (score directly adjusts premium)
+- A retention mechanic (the score is worth protecting)
+ 
+It also creates something no other parametric insurance product in India has attempted: a portable gig worker financial identity. A rider who builds a score of 85 on Kawach has verifiable proof of consistent, honest work behaviour, usable beyond insurance for loan access, platform incentives, or welfare scheme eligibility.
+ 
+### Score Components
+ 
+| Factor | Weight | What It Measures |
+|--------|--------|-----------------|
+| Verified work activity | 30% | GPS-confirmed active sessions per week |
+| Session consistency | 25% | Regularity of working hours and zone presence over time |
+| Claim accuracy | 20% | Ratio of valid confirmed claims to total claims triggered |
+| Fraud signal history | 15% | Accumulated fraud risk score across all sessions |
+| Policy continuity | 10% | Consecutive weeks of active coverage without lapse |
+ 
+The score is recalculated every Sunday night alongside the weekly premium cycle. It uses a rolling 12-week window, recent behaviour is weighted more heavily than older behaviour, so a rider who had a difficult month can recover their score within 6-8 weeks of consistent activity.
+ 
+### Score Bands and Benefits
+ 
+| Score | Tier | Premium Effect | Claim Processing | Verification |
+|-------|------|---------------|-----------------|--------------|
+| 80-100 | Trusted | 15% discount | Instant, zero additional checks | GPS only |
+| 60-79 | Established | 5% discount | Standard automated | GPS + activity |
+| 40-59 | Building | Standard rate | Standard automated | Full 4-layer |
+| 20-39 | Developing | 10% loading | Enhanced checks | Full 4-layer + manual flag |
+| 0-19 | Restricted | 20% loading | Manual review required | Held pending review |
+ 
+### Worked Example, Arjun after 8 weeks
+ 
+| Factor | Arjun's Score | Weight | Contribution |
+|--------|--------------|--------|--------------|
+| Verified work activity | 88 | 0.30 | 26.4 |
+| Session consistency | 82 | 0.25 | 20.5 |
+| Claim accuracy | 100 | 0.20 | 20.0 |
+| Fraud signal history | 95 | 0.15 | 14.25 |
+| Policy continuity | 100 | 0.10 | 10.0 |
+| **Reputation Score** | | | **91.15, Trusted** |
+ 
+At 91.15, Arjun pays Rs. 35 x 0.85 = **Rs. 29.75/week** (rounded to Rs. 30), receives instant payouts with zero additional verification, and has a portable trust record that reflects 8 weeks of consistent, honest work.
+ 
+### The Bigger Picture
+ 
+India has 7.7 million gig workers with no formal financial identity. Kawach's Insurance Reputation Score is the beginning of an answer to that. It does not require a bank. It does not require an employer. It requires only that a rider shows up, works honestly, and lets the platform verify it.
+ 
+That is infrastructure, not just a feature.
+
+---
 ## Key Design Decisions & Justifications
  
 **Why parametric over traditional insurance?**
