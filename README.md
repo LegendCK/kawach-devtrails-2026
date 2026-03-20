@@ -376,21 +376,126 @@ End session → earnings summary · payout history displayed
 
 ---
 
+## Adversarial Defense & Anti-Spoofing Strategy
+ 
+### The Threat Model
+ 
+A coordinated syndicate of riders uses GPS spoofing applications to fake their location inside a disruption zone while physically sitting at home. They organise via Telegram, meaning the fraud is simultaneous, large-scale, and timed precisely to coincide with a real weather event to make the false claims blend in with legitimate ones. Basic GPS coordinate validation cannot distinguish between a genuinely stranded rider and a spoofed one because both produce GPS coordinates inside the disruption zone. The defense must therefore operate on signals that GPS spoofing cannot fake.
+ 
+---
+ 
+### 1. Differentiating a Stranded Rider from a Bad Actor
+ 
+The core insight is that a GPS spoofer is physically stationary at home while their device reports movement inside a flood zone. Physical stillness leaks across multiple sensor channels that spoofing apps do not touch.
+ 
+**Accelerometer and gyroscope cross-validation**
+ 
+A delivery rider navigating a waterlogged street produces continuous micro-vibrations: road surface feedback, engine vibration, handlebar movement, braking. A rider sitting at home produces none of these. The Kawach mobile app reads the device accelerometer and gyroscope at 10 Hz during active sessions. A session reporting GPS movement inside a disruption zone but showing accelerometer variance below the threshold for a stationary person is immediately flagged as physically inconsistent.
+ 
+| Condition | GPS signal | Accelerometer variance | Classification |
+|-----------|-----------|----------------------|----------------|
+| Genuine stranded rider | Inside zone | Low (stopped, waiting) | Eligible, inactivity consistent with disruption |
+| Genuine active rider | Inside zone | High (moving, vibrating) | Eligible |
+| Spoofer at home | Inside zone (faked) | Near zero (lying still) | Flagged, physical stillness contradicts reported location |
+ 
+**Network cell tower triangulation**
+ 
+GPS coordinates can be faked at the application layer. Cell tower association cannot. The device's network registration data, which towers it is connected to and their signal strengths, is collected passively and cross-referenced against the reported GPS position. A device claiming to be in BTM Layout but connected to towers serving Yelahanka is a hard contradiction. This check requires no additional hardware and cannot be bypassed by standard GPS spoofing apps.
+ 
+**Battery and thermal signature**
+ 
+A rider navigating in 35°C heat with GPS, screen, and motor running for 4 hours has a predictable battery drain curve and elevated device temperature. A device running a spoofing app at home on Wi-Fi has a completely different profile: slower drain, stable temperature, often connected to a charger. Kawach monitors battery level deltas and, on supported Android devices, ambient temperature reported by the hardware thermal sensor.
+ 
+**Dark store order data cross-reference**
+ 
+This is the strongest signal available. If a rider claims to have been actively working during a disruption event, the platform cross-references Blinkit/Zepto platform activity logs (where API access exists) or infers activity from GPS trajectory patterns that match known dark store pickup routes. A rider with zero order completions, zero route patterns matching any dark store, and no pickup-zone dwell time during the claimed work session has no legitimate basis for a payout regardless of their reported location.
+ 
+---
+ 
+### 2. Detecting a Coordinated Fraud Ring
+ 
+Individual spoofing is detectable through the signals above. A syndicate of 500 riders is detectable through network-level behavioral analysis that no individual spoofer can hide from.
+ 
+**Simultaneous claim surge detection**
+ 
+Under genuine disruption conditions, claims arrive in a geographic wave, riders in the most severely affected micro-zones trigger first, then adjacent zones as conditions spread. Syndicate fraud produces a different pattern: a sudden vertical spike in claims across multiple zones at the exact moment a weather alert is issued, with no geographic propagation pattern. Kawach's disruption engine maintains a rolling baseline of expected claims-per-zone-per-hour. A zone receiving 10x its expected claim rate within 5 minutes of a red-alert trigger fires a syndicate flag, not just an individual fraud flag.
+ 
+**Device fingerprint clustering**
+ 
+Spoofing applications leave consistent fingerprints: identical mock location provider signatures, identical GPS update cadences (spoofing apps typically update at exactly 1 Hz, real GPS varies), and identical sensor metadata patterns. When 50 devices in a single disruption event share the same GPS update interval, the same spoofing app signature, and the same accelerometer silence profile, that is not coincidence. Kawach hashes device sensor metadata and compares fingerprints across all claims within a disruption event window. Clusters of 5 or more devices with matching fingerprints are quarantined together.
+ 
+**Social graph inference from zone entry timing**
+ 
+Syndicate members coordinating via Telegram enter the spoofed zone within seconds of each other, because they receive the same message at the same time and trigger their spoofing apps simultaneously. Legitimate riders drift into disruption zones continuously as their shifts progress. Kawach records zone entry timestamps for all active sessions. A burst of 20+ zone entries within a 90-second window is a coordination signal. Real riders entering a flood zone are spread across hours, not seconds.
+ 
+**Velocity impossibility across historical sessions**
+ 
+Syndicate members often rotate across multiple fake zones in a single week to maximise payouts. A rider whose historical GPS sessions show them operating in Koramangala on Monday and Whitefield on Tuesday but claiming to be in BTM Layout during Wednesday's flood event, when their device has never previously logged activity in BTM Layout, is anomalous. Zone affinity scoring tracks each rider's historical operating zones. Claims from zones where a rider has less than 5% historical session presence are weighted as low-credibility.
+ 
+**Specific data points the system analyses beyond GPS coordinates:**
+ 
+| Data Point | What it detects |
+|------------|----------------|
+| Accelerometer variance (10 Hz) | Physical stillness while reporting movement |
+| Gyroscope rotation delta | Stationary device vs. moving vehicle |
+| Cell tower association | Location contradiction at network layer |
+| Battery drain rate | Home charging vs. active outdoor use |
+| GPS update interval regularity | Spoofing app cadence vs. real GPS jitter |
+| Mock location provider flag | Device-level spoofing app detection |
+| Dark store dwell time | No pickup activity despite claiming active session |
+| Claim surge rate per zone | Syndicate coordination signal |
+| Zone entry timestamp clustering | Telegram-coordinated simultaneous trigger |
+| Device sensor metadata hash | Shared spoofing app fingerprint across devices |
+| Historical zone affinity score | Rider claiming a zone they never work in |
+ 
+---
+ 
+### 3. UX Balance: Protecting Honest Riders from False Positives
+ 
+The greatest risk of an aggressive anti-fraud system is penalising genuine workers. A rider in a real flood zone may have dropped their phone, exhausted their battery, or lost cell signal entirely, all of which can look like fraud signals if interpreted naively. Kawach's approach is to separate detection from denial.
+ 
+**Tiered response, not binary block**
+ 
+No single fraud signal blocks a payout. Each signal contributes to a fraud score. Only a score above the Critical threshold results in a held payout. A rider with a dead battery and no accelerometer data gets a Medium score, payout proceeds with an audit log, not a block.
+ 
+| Fraud Score | Signals present | Action |
+|-------------|----------------|--------|
+| Low (0–30) | 0–1 weak signals | Payout proceeds, session logged |
+| Medium (31–60) | 2–3 signals, individually explainable | Payout proceeds, audit trail created |
+| High (61–85) | Multiple correlated signals | Payout held 24 hrs, rider notified, self-declaration requested |
+| Critical (86–100) | Coordinated signals including device fingerprint match | Payout blocked, case queued for review |
+ 
+**Self-declaration for High-scored claims**
+ 
+When a claim scores High, the rider receives a push notification explaining that their claim is under review and asking them to confirm one of three things: they were genuinely working, they experienced a network drop, or they were resting during the event. This is not an accusation, it is framed as a verification step. A honest rider confirms in one tap. A bad actor who did not expect this step typically abandons the claim. Confirmation data feeds back into the model to improve future scoring.
+ 
+**Network drop grace window**
+ 
+Bad weather causes genuine GPS signal loss and cell tower handoff failures. Kawach applies a 3-missed-ping grace window: up to 3 consecutive GPS updates can be absent without penalising the session. Beyond 3 missed pings, the session is marked as signal-interrupted rather than fraudulent, and the rider's last confirmed zone position is held for up to 15 minutes before the session is paused. This directly addresses the scenario where an honest rider in a genuine flood zone loses signal precisely because conditions are severe.
+ 
+**Transparent claim status in the app**
+ 
+Riders can see their claim status in real time, Active, Under Review, Approved, or Held. If held, they see a plain-language explanation (not a fraud accusation) and an estimated resolution time of 24 hours. This reduces support overhead and prevents the perception that the platform arbitrarily withholds money. For the 99% of legitimate riders, the experience is invisible, their claim clears automatically. The friction only surfaces for genuine anomalies.
+ 
+**Syndicate quarantine does not punish bystanders**
+ 
+When a coordinated fraud ring is detected in a zone, Kawach does not freeze all claims from that zone. It freezes only the claims belonging to the flagged device cluster. Legitimate riders in the same zone who show normal accelerometer variance, normal cell tower data, and normal zone affinity continue to receive payouts without interruption. The syndicate is isolated; the genuine disruption event is not.
+ 
+---
 ## Key Design Decisions & Justifications
-
+ 
 **Why parametric over traditional insurance?**
 Arjun's income disruptions are simultaneous (affect hundreds of riders at once), short-duration (3–8 hrs), and objectively measurable. Traditional insurance requires individual damage assessment, too slow, too expensive, and impractical for events that last a few hours. Parametric triggers fire automatically when thresholds are crossed, delivering compensation within the same day.
-
+ 
 **Why weekly pricing?**
 Gig workers are paid weekly by platforms. A monthly premium requires upfront capital that many workers don't hold. ₹35/week is a psychologically accessible number, one less fast food order, and aligns premium payment timing with earnings receipt.
-
+ 
 **Why the Hybrid Model over a single trigger?**
 A single environmental trigger creates basis risk: the trigger fires but the rider wasn't actually affected, or vice versa. By combining income deviation (50%), activity drop (30%), and environmental score (20%), we triangulate actual impact from three independent data sources. This is the same principle used by Swiss Re and Arbol in their parametric products, multiple correlated signals reduce false payouts without reducing valid ones.
-
+ 
 **Why 2 km × 2 km zones?**
 Smaller than ward boundaries (which average 15–20 km²), larger than individual GPS points. This scale matches the operational radius of a Blinkit dark store, the spatial resolution of CPCB pollution data (3–5 km station spacing), and the granularity of modern weather APIs (~1 km). It is the smallest unit at which all three data sources are reliable simultaneously.
-
+ 
 ---
-
+ 
 *Kawach · NoName.exe · Guidewire DEVTrails 2026 · Phase 1*
-
