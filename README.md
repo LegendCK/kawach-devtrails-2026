@@ -372,7 +372,7 @@ End session → earnings summary · payout history displayed
 ![Fraud Detection](diagrams/fraud_detection_module.svg)
 
 ### Mobile App Structure
-![Mobile App](diagrams/Mobile_App_Structure.svg)
+![Mobile App](diagrams/mobile_app_structure.svg)
 
 ---
 
