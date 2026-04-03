@@ -30,11 +30,16 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('Weekly policies', style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            'Weekly policies',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: 6),
           Text(
             'One active policy per rider. Coverage starts after waiting period.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
           ),
           const SizedBox(height: 16),
           _PolicyCard(
@@ -50,7 +55,12 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
             title: 'Standard',
             premium: 35,
             cover: 1600,
-            events: const ['Heavy Rainfall', 'Urban Flooding', 'Extreme Heat', 'Severe AQI'],
+            events: const [
+              'Heavy Rainfall',
+              'Urban Flooding',
+              'Extreme Heat',
+              'Severe AQI',
+            ],
             selected: appProvider.selectedPolicyTier == 'Standard',
             highlight: true,
             onTap: () => appProvider.selectPolicyTier('Standard'),
@@ -65,7 +75,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
               'Urban Flooding',
               'Extreme Heat',
               'Severe AQI',
-              'Thunderstorm'
+              'Thunderstorm',
             ],
             selected: appProvider.selectedPolicyTier == 'Premium',
             onTap: () => appProvider.selectPolicyTier('Premium'),
@@ -76,7 +86,9 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
               Icon(
                 _termsAccepted ? Icons.check_circle : Icons.info_outline,
                 size: 18,
-                color: _termsAccepted ? Colors.green : KawachColors.textSecondary,
+                color: _termsAccepted
+                    ? Colors.green
+                    : KawachColors.textSecondary,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -95,14 +107,19 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
             height: 48,
             child: OutlinedButton(
               onPressed: () async {
-                final accepted = await _showTerms(context, requireAcceptance: true);
+                final accepted = await _showTerms(
+                  context,
+                  requireAcceptance: true,
+                );
                 if (accepted == true && mounted) {
                   setState(() {
                     _termsAccepted = true;
                   });
                 }
               },
-              child: Text(_termsAccepted ? 'Terms Accepted' : 'Read & Accept Terms'),
+              child: Text(
+                _termsAccepted ? 'Terms Accepted' : 'Read & Accept Terms',
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -110,7 +127,9 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
             width: double.infinity,
             height: 54,
             child: FilledButton(
-              onPressed: _termsAccepted ? () => _showPayment(context, appProvider) : null,
+              onPressed: _termsAccepted
+                  ? () => _showPayment(context, appProvider)
+                  : null,
               child: const Text('Continue to Payment'),
             ),
           ),
@@ -150,17 +169,26 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Complete Payment', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'Complete Payment',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 12),
-                  Text('${appProvider.selectedPolicyTier} · Rs. ${appProvider.premium}/week',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    '${appProvider.selectedPolicyTier} · Rs. ${appProvider.premium}/week',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     height: 54,
                     child: FilledButton(
                       onPressed: paying ? null : pay,
-                      child: Text(paying ? 'Processing...' : 'Pay Rs. ${appProvider.premium}'),
+                      child: Text(
+                        paying
+                            ? 'Processing...'
+                            : 'Pay Rs. ${appProvider.premium}',
+                      ),
                     ),
                   ),
                 ],
@@ -172,7 +200,10 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
     );
   }
 
-  Future<bool?> _showTerms(BuildContext context, {required bool requireAcceptance}) {
+  Future<bool?> _showTerms(
+    BuildContext context, {
+    required bool requireAcceptance,
+  }) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -262,7 +293,9 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
                                 });
                               },
                               contentPadding: EdgeInsets.zero,
-                              title: const Text('I have read and accept the policy terms.'),
+                              title: const Text(
+                                'I have read and accept the policy terms.',
+                              ),
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
@@ -314,7 +347,10 @@ class _TermsBlock extends StatelessWidget {
           for (final line in lines)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Text('• $line', style: Theme.of(context).textTheme.bodyMedium),
+              child: Text(
+                '• $line',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
         ],
       ),
@@ -343,7 +379,9 @@ class _PolicyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = selected ? KawachColors.indigoLight : KawachColors.borderSubtle;
+    final borderColor = selected
+        ? KawachColors.indigoLight
+        : KawachColors.borderSubtle;
 
     return InkWell(
       onTap: onTap,
@@ -368,13 +406,21 @@ class _PolicyCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text('Rs. $premium/week', style: Theme.of(context).textTheme.bodyLarge),
+            Text(
+              'Rs. $premium/week',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
             const SizedBox(height: 4),
-            Text('Up to Rs. $cover weekly coverage', style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              'Up to Rs. $cover weekly coverage',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               events.join(' • '),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
             ),
           ],
         ),

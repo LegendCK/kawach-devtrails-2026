@@ -39,8 +39,9 @@ class AppProvider extends ChangeNotifier {
     if (_knownUsers.contains(normalizedPhone)) {
       isRegistered = true;
       riderName = riderName.isEmpty ? (mockRider['name'] as String) : riderName;
-      riderPlatform =
-          riderPlatform.isEmpty ? (mockRider['platform'] as String) : riderPlatform;
+      riderPlatform = riderPlatform.isEmpty
+          ? (mockRider['platform'] as String)
+          : riderPlatform;
       notifyListeners();
       return '/home';
     }
@@ -70,8 +71,8 @@ class AppProvider extends ChangeNotifier {
     premium = tier == 'Basic'
         ? 20
         : tier == 'Standard'
-            ? 35
-            : 50;
+        ? 35
+        : 50;
     coverageLimit = getCoverageFromTier(tier);
     notifyListeners();
   }

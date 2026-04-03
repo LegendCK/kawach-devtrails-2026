@@ -11,14 +11,8 @@ import '../screens/splash_screen.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
   routes: [
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
-    ),
-    GoRoute(
-      path: '/phone',
-      builder: (context, state) => const PhoneScreen(),
-    ),
+    GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
+    GoRoute(path: '/phone', builder: (context, state) => const PhoneScreen()),
     GoRoute(
       path: '/otp',
       builder: (context, state) {

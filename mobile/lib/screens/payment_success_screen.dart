@@ -32,7 +32,10 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
     );
 
     _checkmarkBounce = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _checkmarkController, curve: const Interval(0.6, 1.0, curve: Curves.easeInOut)),
+      CurvedAnimation(
+        parent: _checkmarkController,
+        curve: const Interval(0.6, 1.0, curve: Curves.easeInOut),
+      ),
     );
 
     // Text fade-in animation
@@ -79,7 +82,11 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                 AnimatedBuilder(
                   animation: _checkmarkController,
                   builder: (context, child) {
-                    final bounce = 1.0 + (_checkmarkBounce.value * 0.15 * sin(_textController.value * pi * 2));
+                    final bounce =
+                        1.0 +
+                        (_checkmarkBounce.value *
+                            0.15 *
+                            sin(_textController.value * pi * 2));
                     return Transform.scale(
                       scale: _checkmarkScale.value * bounce,
                       child: Container(
@@ -174,16 +181,26 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
-                      border: Border.all(color: KawachColors.borderActive, width: 1.5),
+                      border: Border.all(
+                        color: KawachColors.borderActive,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                       color: KawachColors.indigo.withValues(alpha: 0.05),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.shield_rounded, color: KawachColors.indigo, size: 20),
+                        Icon(
+                          Icons.shield_rounded,
+                          color: KawachColors.indigo,
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           'Active Coverage • Starting Now',

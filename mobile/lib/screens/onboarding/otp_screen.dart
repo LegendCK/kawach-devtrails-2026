@@ -134,8 +134,9 @@ class _OtpScreenState extends State<OtpScreen> {
                     focusNode: _focusNodes[index],
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
-                    textInputAction:
-                        index == 3 ? TextInputAction.done : TextInputAction.next,
+                    textInputAction: index == 3
+                        ? TextInputAction.done
+                        : TextInputAction.next,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     maxLength: 1,
                     style: Theme.of(context).textTheme.titleLarge,
@@ -147,13 +148,15 @@ class _OtpScreenState extends State<OtpScreen> {
                       hintText: '',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: KawachColors.borderSubtle),
+                        borderSide: const BorderSide(
+                          color: KawachColors.borderSubtle,
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: KawachColors.borderSubtle),
+                        borderSide: const BorderSide(
+                          color: KawachColors.borderSubtle,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),

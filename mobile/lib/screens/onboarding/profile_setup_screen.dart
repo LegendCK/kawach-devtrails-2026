@@ -48,7 +48,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
               for (final value in values)
                 ListTile(
@@ -71,7 +74,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final appProvider = context.read<AppProvider>();
     appProvider.register(
       name: _nameController.text.trim(),
-      phone: appProvider.riderPhone.isEmpty ? '+91 98765 43210' : appProvider.riderPhone,
+      phone: appProvider.riderPhone.isEmpty
+          ? '+91 98765 43210'
+          : appProvider.riderPhone,
       platform: _selectedPlatform!,
     );
     setState(() {
@@ -79,9 +84,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     });
   }
 
-  String get _assignedZoneName => _selectedCity == 'Bengaluru' ? 'BTM Layout' : 'Primary City Zone';
+  String get _assignedZoneName =>
+      _selectedCity == 'Bengaluru' ? 'BTM Layout' : 'Primary City Zone';
 
-  String get _assignedZoneId => _selectedCity == 'Bengaluru' ? 'BLR-BTM-042' : 'CITY-ZONE-001';
+  String get _assignedZoneId =>
+      _selectedCity == 'Bengaluru' ? 'BLR-BTM-042' : 'CITY-ZONE-001';
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +100,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Tell us about yourself', style: Theme.of(context).textTheme.headlineLarge),
+              Text(
+                'Tell us about yourself',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
               const SizedBox(height: 8),
               Text(
                 'This helps us place you in the right zone and personalize your policy.',
@@ -108,18 +118,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   labelText: 'Full name',
                   filled: true,
                   fillColor: KawachColors.surfaceOne,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: KawachColors.borderSubtle),
+                    borderSide: const BorderSide(
+                      color: KawachColors.borderSubtle,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: KawachColors.borderSubtle),
+                    borderSide: const BorderSide(
+                      color: KawachColors.borderSubtle,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: KawachColors.indigoLight, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: KawachColors.indigoLight,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -146,7 +166,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               const SizedBox(height: 10),
               Text(
                 'You can update these details later from your profile.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
               ),
               const SizedBox(height: 22),
               if (_submitted) ...[
@@ -156,7 +178,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   decoration: BoxDecoration(
                     color: KawachColors.surfaceOne,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: KawachColors.indigoLight.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: KawachColors.indigoLight.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,26 +188,36 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       Text(
                         'Zone Assigned',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: KawachColors.indigoLight,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          color: KawachColors.indigoLight,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      Text(_assignedZoneName, style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        _assignedZoneName,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         _assignedZoneId,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: KawachColors.textMuted,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: KawachColors.surfaceTwo,
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
-                          _selectedCity == 'Bengaluru' ? 'Moderate Risk' : 'Standard Risk',
+                          _selectedCity == 'Bengaluru'
+                              ? 'Moderate Risk'
+                              : 'Standard Risk',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
@@ -238,7 +272,10 @@ class _PickerField extends StatelessWidget {
           labelText: label,
           filled: true,
           fillColor: KawachColors.surfaceOne,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: KawachColors.borderSubtle),
@@ -249,7 +286,10 @@ class _PickerField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: KawachColors.indigoLight, width: 1.5),
+            borderSide: const BorderSide(
+              color: KawachColors.indigoLight,
+              width: 1.5,
+            ),
           ),
         ),
         child: Row(
@@ -259,7 +299,10 @@ class _PickerField extends StatelessWidget {
               value ?? 'Select $label',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const Icon(Icons.keyboard_arrow_down, color: KawachColors.textSecondary),
+            const Icon(
+              Icons.keyboard_arrow_down,
+              color: KawachColors.textSecondary,
+            ),
           ],
         ),
       ),

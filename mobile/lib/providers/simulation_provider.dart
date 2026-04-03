@@ -26,7 +26,7 @@ class SimulationProvider extends ChangeNotifier {
       final delay = i == 0
           ? 0
           : (simulationSteps[i]['delayMs'] as int) -
-              (simulationSteps[i - 1]['delayMs'] as int);
+                (simulationSteps[i - 1]['delayMs'] as int);
       await Future.delayed(Duration(milliseconds: delay));
       completedSteps = i + 1;
       notifyListeners();

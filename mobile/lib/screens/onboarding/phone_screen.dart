@@ -107,23 +107,36 @@ class _PhoneScreenState extends State<PhoneScreen> {
                         ),
                       ),
                     ),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 0,
+                      minHeight: 0,
+                    ),
                     filled: true,
                     fillColor: KawachColors.surfaceOne,
                     counterText: '',
                     hintText: '',
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 18,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: KawachColors.borderSubtle),
+                      borderSide: const BorderSide(
+                        color: KawachColors.borderSubtle,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: KawachColors.borderSubtle),
+                      borderSide: const BorderSide(
+                        color: KawachColors.borderSubtle,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: KawachColors.borderActive, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: KawachColors.borderActive,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
