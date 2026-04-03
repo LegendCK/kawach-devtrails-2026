@@ -15,7 +15,12 @@ class AppProvider extends ChangeNotifier {
   int coverageLimit = 1600;
   int coverageUsed = 0;
   bool hasPurchasedPolicy = false;
-  String policyValidUntil = '27 Mar 2026';
+  DateTime? policyPurchasedAt;
+
+  double rainfallMm = 12;
+  double temperatureC = 29;
+  int aqi = 92;
+  DateTime conditionUpdatedAt = DateTime.now();
 
   bool isSessionActive = false;
   DateTime? sessionStart;
@@ -23,6 +28,74 @@ class AppProvider extends ChangeNotifier {
   List<Map<String, dynamic>> claims = [...mockClaimsHistory];
 
   int get coverageRemaining => coverageLimit - coverageUsed;
+
+  String get policyValidUntil {
+    final baseDate = policyPurchasedAt ?? DateTime.now();
+    final validUntil = baseDate.add(const Duration(days: 7));
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${validUntil.day.toString().padLeft(2, '0')} ${monthNames[validUntil.month - 1]} ${validUntil.year}';
+  }
+
+  int get currentRiskScore {
+    final weighted =
+        0.4 * rainRiskScore + 0.3 * temperatureRiskScore + 0.3 * aqiRiskScore;
+    return weighted.round();
+  }
+
+  double get rainRiskScore =>
+      ((rainfallMm / 80) * 100).clamp(0, 100).toDouble();
+
+  double get temperatureRiskScore =>
+      (((temperatureC - 28) / 16) * 100).clamp(0, 100).toDouble();
+
+  double get aqiRiskScore => ((aqi / 300) * 100).clamp(0, 100).toDouble();
+
+  Map<String, double> get pricingDriverContribution {
+    final rain = 0.4 * rainRiskScore;
+    final temp = 0.3 * temperatureRiskScore;
+    final air = 0.3 * aqiRiskScore;
+    final total = rain + temp + air;
+    if (total <= 0) {
+      return {'Rainfall': 0, 'Heat': 0, 'AQI': 0};
+    }
+    return {
+      'Rainfall': (rain / total).clamp(0, 1),
+      'Heat': (temp / total).clamp(0, 1),
+      'AQI': (air / total).clamp(0, 1),
+    };
+  }
+
+  int get dynamicPremium =>
+      getPremiumFromRiskScore(currentRiskScore.toDouble());
+
+  String get riskBand {
+    final score = currentRiskScore;
+    if (score < 35) return 'Low';
+    if (score < 60) return 'Moderate';
+    if (score < 80) return 'High';
+    return 'Severe';
+  }
+
+  int get premiumDelta => dynamicPremium - premium;
+
+  String get conditionUpdateLabel {
+    final mins = DateTime.now().difference(conditionUpdatedAt).inMinutes;
+    if (mins <= 0) return 'Updated just now';
+    return 'Updated ${mins}m ago';
+  }
 
   String _normalizePhone(String phone) {
     final digitsOnly = phone.replaceAll(RegExp(r'\D'), '');
@@ -80,6 +153,19 @@ class AppProvider extends ChangeNotifier {
   void purchasePolicy() {
     hasPurchasedPolicy = true;
     coverageUsed = 0;
+    policyPurchasedAt = DateTime.now();
+    notifyListeners();
+  }
+
+  void updateZoneConditions({
+    required double rainfall,
+    required double temperature,
+    required int currentAqi,
+  }) {
+    rainfallMm = rainfall;
+    temperatureC = temperature;
+    aqi = currentAqi;
+    conditionUpdatedAt = DateTime.now();
     notifyListeners();
   }
 
@@ -115,6 +201,17 @@ class AppProvider extends ChangeNotifier {
       'lostHours': 4,
     });
     coverageUsed += payout;
+
+    // Keep dashboard pricing/risk responsive to the latest disruption context.
+    if (disruptionType.toLowerCase().contains('rain')) {
+      rainfallMm = 78;
+    } else if (disruptionType.toLowerCase().contains('heat')) {
+      temperatureC = 42;
+    } else if (disruptionType.toLowerCase().contains('aq')) {
+      aqi = 285;
+    }
+    conditionUpdatedAt = DateTime.now();
+
     notifyListeners();
   }
 }

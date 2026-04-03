@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../widgets/bottom_nav_bar.dart';
-import 'claims_screen.dart';
-import 'home_screen.dart';
-import 'map_screen.dart';
-import 'profile_screen.dart';
 
 class AppShell extends StatelessWidget {
-  const AppShell({super.key, required this.currentIndex});
+  const AppShell({super.key, required this.navigationShell});
 
-  final int currentIndex;
+  final StatefulNavigationShell navigationShell;
 
-  static const _screens = [
-    HomeScreen(),
-    MapScreen(),
-    ClaimsScreen(),
-    ProfileScreen(),
-  ];
+  void _onDestinationSelected(int index) {
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: _screens[currentIndex]),
-      bottomNavigationBar: KawachBottomNavBar(currentIndex: currentIndex),
+      body: SafeArea(child: navigationShell),
+      bottomNavigationBar: KawachBottomNavBar(
+        currentIndex: navigationShell.currentIndex,
+        onDestinationSelected: _onDestinationSelected,
+      ),
     );
   }
 }

@@ -1,29 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../core/theme.dart';
 
 class KawachBottomNavBar extends StatelessWidget {
-  const KawachBottomNavBar({super.key, required this.currentIndex});
+  const KawachBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onDestinationSelected,
+  });
 
   final int currentIndex;
-
-  void _go(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        context.go('/home');
-        return;
-      case 1:
-        context.go('/map');
-        return;
-      case 2:
-        context.go('/claims');
-        return;
-      case 3:
-        context.go('/profile');
-        return;
-    }
-  }
+  final ValueChanged<int> onDestinationSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +28,7 @@ class KawachBottomNavBar extends StatelessWidget {
       ),
       child: NavigationBar(
         selectedIndex: currentIndex,
-        onDestinationSelected: (index) => _go(context, index),
+        onDestinationSelected: onDestinationSelected,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

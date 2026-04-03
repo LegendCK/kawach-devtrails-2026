@@ -1,11 +1,15 @@
 import 'package:go_router/go_router.dart';
 
 import '../screens/app_shell.dart';
+import '../screens/claims_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/map_screen.dart';
 import '../screens/onboarding/otp_screen.dart';
 import '../screens/onboarding/phone_screen.dart';
 import '../screens/onboarding/profile_setup_screen.dart';
 import '../screens/payment_success_screen.dart';
 import '../screens/policy_selection_screen.dart';
+import '../screens/profile_screen.dart';
 import '../screens/splash_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -32,21 +36,44 @@ final GoRouter appRouter = GoRouter(
       path: '/payment-success',
       builder: (context, state) => const PaymentSuccessScreen(),
     ),
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => const AppShell(currentIndex: 0),
-    ),
-    GoRoute(
-      path: '/map',
-      builder: (context, state) => const AppShell(currentIndex: 1),
-    ),
-    GoRoute(
-      path: '/claims',
-      builder: (context, state) => const AppShell(currentIndex: 2),
-    ),
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => const AppShell(currentIndex: 3),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return AppShell(navigationShell: navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/map',
+              builder: (context, state) => const MapScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/claims',
+              builder: (context, state) => const ClaimsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              builder: (context, state) => const ProfileScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
   ],
 );
