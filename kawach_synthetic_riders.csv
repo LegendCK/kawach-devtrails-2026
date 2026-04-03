@@ -1,0 +1,51 @@
+rider_id,name,age,phone,join_date,city,primary_zone_id,primary_zone_name,zone_risk_tier,zone_risk_score,platform,vehicle_type,avg_daily_deliveries,avg_hourly_income_inr,avg_monthly_income_inr,working_hours_per_day,working_days_per_week,months_on_platform,base_weekly_premium_inr,weekly_coverage_limit_inr,policy_active,fraud_flags,gps_pct_in_zone,reputation_score,reputation_tier
+KWR0001,Venkat Gowda,40,9733XXXXXX,28-06-2023,Bengaluru,BLR_003,Koramangala,High,62.1,Zepto,2-Wheeler (Petrol),19,102.11,21698.0,9.3,5,17,50,2000,True,2,0.55,94.3,Good
+KWR0002,Arjun Prasad,26,9786XXXXXX,09-12-2022,Bengaluru,BLR_002,HSR Layout,High,55.2,Zepto,2-Wheeler (Petrol),17,96.48,20502.0,8.4,6,17,50,2000,True,0,0.54,89.2,Trusted
+KWR0003,Darshan Shetty,26,9680XXXXXX,23-06-2023,Bengaluru,BLR_010,Peenya,Very High,72.3,Blinkit,2-Wheeler (EV),26,93.3,19826.0,7.4,5,18,70,2000,True,0,0.64,90.9,Average
+KWR0004,Dinesh Patil,27,9241XXXXXX,17-08-2022,Bengaluru,BLR_008,Rajajinagar,High,61.5,Zepto,2-Wheeler (Petrol),16,97.38,20693.0,8.9,7,30,50,2000,True,0,0.94,86.7,Good
+KWR0005,Jagadish Sharma,20,9796XXXXXX,24-02-2024,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Blinkit,2-Wheeler (Petrol),21,115.1,24459.0,8.3,6,3,35,1600,True,2,0.75,96.7,Average
+KWR0006,Thimma Joshi,40,9405XXXXXX,27-11-2023,Bengaluru,BLR_006,Yelahanka,Low,28.4,Zepto,2-Wheeler (EV),17,113.29,24074.0,8.6,7,3,20,1200,True,0,0.42,86.8,Good
+KWR0007,Venkat Nair,29,9345XXXXXX,02-04-2022,Bengaluru,BLR_003,Koramangala,High,62.1,Zepto,2-Wheeler (EV),14,110.78,23541.0,9.9,7,11,50,2000,True,1,0.87,73.6,Good
+KWR0008,Om Prakash Rao,26,9652XXXXXX,25-12-2023,Bengaluru,BLR_008,Rajajinagar,High,61.5,Blinkit,2-Wheeler (EV),23,103.8,22058.0,8.3,7,31,50,2000,True,0,0.75,73.4,Trusted
+KWR0009,Basavraj Kumar,20,9172XXXXXX,23-11-2022,Bengaluru,BLR_004,Jayanagar,Moderate,42.3,Zepto,2-Wheeler (Petrol),13,103.24,21938.0,9.6,5,35,35,1600,True,0,0.66,76.7,Average
+KWR0010,Girish Singh,38,9584XXXXXX,08-08-2025,Bengaluru,BLR_010,Peenya,Very High,72.3,Zepto,2-Wheeler (Petrol),15,112.35,23874.0,9.0,6,30,70,2000,True,0,0.85,81.5,Average
+KWR0011,Suresh Naidu,30,9919XXXXXX,28-02-2023,Bengaluru,BLR_005,Kengeri,High,58.8,Zepto,2-Wheeler (Petrol),26,86.88,18462.0,7.4,5,20,50,2000,True,0,0.72,83.0,Trusted
+KWR0012,Ravi Shankar,37,9956XXXXXX,01-02-2023,Bengaluru,BLR_002,HSR Layout,High,55.2,Zepto,2-Wheeler (EV),27,86.57,18396.0,8.4,6,6,50,2000,True,1,0.66,74.6,Trusted
+KWR0013,Manoj Hegde,33,9813XXXXXX,24-09-2025,Bengaluru,BLR_008,Rajajinagar,High,61.5,Zepto,2-Wheeler (Petrol),21,99.11,21061.0,7.7,5,6,50,2000,False,0,0.88,90.9,Trusted
+KWR0014,Kiran Reddy,21,9620XXXXXX,03-03-2022,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Zepto,2-Wheeler (Petrol),24,101.46,21560.0,7.4,7,18,35,1600,True,0,0.95,86.2,Trusted
+KWR0015,Santhosh Kumar,28,9309XXXXXX,22-12-2024,Bengaluru,BLR_007,Whitefield,Moderate,45.6,Zepto,2-Wheeler (EV),24,101.21,21507.0,7.4,7,22,35,1600,True,0,0.68,82.8,Trusted
+KWR0016,Praveen Murthy,37,9318XXXXXX,17-05-2023,Bengaluru,BLR_007,Whitefield,Moderate,45.6,Blinkit,2-Wheeler (Petrol),19,88.1,18721.0,8.1,5,31,35,1600,True,0,0.67,93.3,Average
+KWR0017,Naveen Rao,37,9406XXXXXX,22-02-2023,Bengaluru,BLR_008,Rajajinagar,High,61.5,Blinkit,2-Wheeler (Petrol),15,101.4,21548.0,9.2,5,20,50,2000,True,2,0.89,77.9,Trusted
+KWR0018,Arun Shetty,35,9357XXXXXX,28-01-2022,Bengaluru,BLR_003,Koramangala,High,62.1,Blinkit,2-Wheeler (EV),13,93.18,19801.0,7.0,5,19,50,2000,True,0,0.71,74.5,Good
+KWR0019,Lokesh Patil,24,9658XXXXXX,02-06-2023,Bengaluru,BLR_006,Yelahanka,Low,28.4,Blinkit,2-Wheeler (Petrol),13,87.33,18558.0,7.9,5,25,20,1200,True,0,0.31,75.9,Trusted
+KWR0020,Vikram Joshi,39,9867XXXXXX,05-04-2023,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Zepto,2-Wheeler (EV),12,112.12,23826.0,7.5,6,29,35,1600,True,0,0.77,92.5,Average
+KWR0021,Ajay Naik,21,9979XXXXXX,16-04-2023,Bengaluru,BLR_009,Hebbal,Low,22.1,Blinkit,2-Wheeler (EV),21,88.35,18774.0,9.5,5,17,20,1200,True,0,0.81,70.7,Trusted
+KWR0022,Sunil Gowda,31,9756XXXXXX,17-07-2024,Bengaluru,BLR_010,Peenya,Very High,72.3,Zepto,2-Wheeler (Petrol),20,108.97,23156.0,7.5,6,5,70,2000,True,0,0.52,73.0,Good
+KWR0023,Pradeep Kumar,23,9494XXXXXX,19-04-2024,Bengaluru,BLR_005,Kengeri,High,58.8,Zepto,2-Wheeler (EV),12,115.51,24546.0,8.6,7,15,50,2000,True,0,0.58,80.2,Trusted
+KWR0024,Harish Reddy,23,9837XXXXXX,10-09-2024,Bengaluru,BLR_007,Whitefield,Moderate,45.6,Blinkit,2-Wheeler (EV),24,105.57,22434.0,9.1,7,11,35,1600,False,1,0.71,75.4,Average
+KWR0025,Deepak Murthy,29,9515XXXXXX,18-01-2024,Bengaluru,BLR_009,Hebbal,Low,22.1,Blinkit,2-Wheeler (Petrol),25,104.08,22117.0,9.4,7,23,20,1200,False,0,0.89,83.0,Good
+KWR0026,Rajesh Hegde,25,9774XXXXXX,03-05-2024,Bengaluru,BLR_004,Jayanagar,Moderate,42.3,Zepto,2-Wheeler (Petrol),21,114.75,24384.0,7.7,5,12,35,1600,True,0,0.82,70.7,Trusted
+KWR0027,Santosh Nair,40,9689XXXXXX,07-12-2025,Bengaluru,BLR_004,Jayanagar,Moderate,42.3,Blinkit,2-Wheeler (EV),19,99.12,21063.0,7.4,7,3,35,1600,False,0,0.8,95.0,Trusted
+KWR0028,Amit Kumar,34,9151XXXXXX,18-04-2022,Bengaluru,BLR_002,HSR Layout,High,55.2,Blinkit,2-Wheeler (Petrol),26,106.57,22646.0,9.0,7,23,50,2000,True,0,0.82,96.6,Good
+KWR0029,Vijay Rao,37,9556XXXXXX,06-12-2025,Bengaluru,BLR_002,HSR Layout,High,55.2,Blinkit,2-Wheeler (EV),19,110.75,23534.0,9.5,6,36,50,2000,True,0,0.63,83.6,Trusted
+KWR0030,Anand Gowda,30,9653XXXXXX,03-03-2023,Bengaluru,BLR_009,Hebbal,Low,22.1,Zepto,2-Wheeler (EV),16,93.42,19852.0,9.1,5,29,20,1200,True,0,0.49,81.4,Average
+KWR0031,Srinivas Patil,38,9812XXXXXX,01-10-2025,Bengaluru,BLR_006,Yelahanka,Low,28.4,Blinkit,2-Wheeler (Petrol),23,97.07,20627.0,7.9,6,29,20,1200,True,0,0.84,85.1,Average
+KWR0032,Mohan Sharma,33,9597XXXXXX,01-07-2024,Bengaluru,BLR_006,Yelahanka,Low,28.4,Blinkit,2-Wheeler (Petrol),26,91.8,19508.0,9.8,7,4,20,1200,True,0,0.44,95.4,Average
+KWR0033,Ramesh Joshi,34,9286XXXXXX,02-05-2025,Bengaluru,BLR_005,Kengeri,High,58.8,Blinkit,2-Wheeler (Petrol),26,89.21,18957.0,8.0,6,20,50,2000,True,0,0.72,91.1,Good
+KWR0034,Ganesh Kumar,31,9329XXXXXX,21-02-2022,Bengaluru,BLR_006,Yelahanka,Low,28.4,Zepto,2-Wheeler (Petrol),18,101.72,21616.0,9.5,7,12,20,1200,True,0,0.31,76.7,Good
+KWR0035,Balaji Reddy,31,9271XXXXXX,20-10-2022,Bengaluru,BLR_008,Rajajinagar,High,61.5,Zepto,2-Wheeler (EV),15,106.68,22670.0,8.7,6,27,50,2000,True,0,0.59,81.1,Average
+KWR0036,Nagaraj Naik,29,9970XXXXXX,22-10-2022,Bengaluru,BLR_007,Whitefield,Moderate,45.6,Zepto,2-Wheeler (EV),25,92.53,19663.0,9.0,5,35,35,1600,True,0,0.84,88.1,Trusted
+KWR0037,Prasad Shetty,40,9948XXXXXX,15-12-2023,Bengaluru,BLR_006,Yelahanka,Low,28.4,Blinkit,2-Wheeler (Petrol),28,114.78,24391.0,9.9,6,33,20,1200,True,0,0.37,83.0,Average
+KWR0038,Mahesh Rao,28,9561XXXXXX,08-08-2025,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Blinkit,2-Wheeler (Petrol),27,113.97,24219.0,9.6,5,34,35,1600,True,0,0.61,75.9,Good
+KWR0039,Satish Murthy,20,9629XXXXXX,07-02-2023,Bengaluru,BLR_003,Koramangala,High,62.1,Blinkit,2-Wheeler (EV),19,93.56,19882.0,9.1,7,34,50,2000,True,1,0.76,82.5,Trusted
+KWR0040,Ramesha Gowda,38,9477XXXXXX,16-09-2024,Bengaluru,BLR_007,Whitefield,Moderate,45.6,Blinkit,2-Wheeler (EV),23,94.49,20079.0,9.1,6,22,35,1600,True,0,0.75,77.0,Trusted
+KWR0041,Manjunath Patil,25,9296XXXXXX,07-12-2025,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Blinkit,2-Wheeler (EV),15,114.48,24327.0,9.5,6,17,35,1600,True,0,0.86,80.1,Good
+KWR0042,Shivakumar Nair,37,9399XXXXXX,23-03-2025,Bengaluru,BLR_006,Yelahanka,Low,28.4,Zepto,2-Wheeler (Petrol),21,115.2,24480.0,8.4,6,24,20,1200,True,0,0.48,75.2,Trusted
+KWR0043,Guruprasad Hegde,35,9175XXXXXX,19-11-2022,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Zepto,2-Wheeler (Petrol),21,87.03,18494.0,7.3,5,10,35,1600,True,1,0.54,85.6,Good
+KWR0044,Chandrashekar Rao,34,9553XXXXXX,10-10-2025,Bengaluru,BLR_008,Rajajinagar,High,61.5,Blinkit,2-Wheeler (Petrol),15,101.2,21505.0,9.8,5,16,50,2000,True,0,0.6,77.4,Trusted
+KWR0045,Venkataramana Kumar,34,9805XXXXXX,20-08-2024,Bengaluru,BLR_010,Peenya,Very High,72.3,Zepto,2-Wheeler (Petrol),21,85.08,18080.0,9.1,7,32,70,2000,True,0,0.52,72.0,Trusted
+KWR0046,Shivananda Gowda,26,9535XXXXXX,04-09-2023,Bengaluru,BLR_010,Peenya,Very High,72.3,Zepto,2-Wheeler (EV),16,105.5,22419.0,7.2,5,22,70,2000,True,0,0.8,86.7,Average
+KWR0047,Raghavendra Patil,32,9378XXXXXX,17-09-2025,Bengaluru,BLR_010,Peenya,Very High,72.3,Blinkit,2-Wheeler (Petrol),13,94.43,20066.0,9.7,7,23,70,2000,True,0,0.72,86.9,Trusted
+KWR0048,Ashok Shetty,20,9883XXXXXX,22-05-2022,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Zepto,2-Wheeler (EV),28,102.83,21851.0,9.0,6,14,35,1600,True,1,0.91,97.9,Good
+KWR0049,Nagendra Joshi,30,9428XXXXXX,22-02-2023,Bengaluru,BLR_001,BTM Layout,Moderate,48.75,Blinkit,2-Wheeler (EV),27,95.79,20355.0,7.9,6,5,35,1600,True,0,0.53,82.7,Good
+KWR0050,Chidananda Kumar,20,9773XXXXXX,28-09-2025,Bengaluru,BLR_009,Hebbal,Low,22.1,Blinkit,2-Wheeler (Petrol),18,111.81,23760.0,8.6,7,34,20,1200,True,0,0.8,87.5,Trusted
