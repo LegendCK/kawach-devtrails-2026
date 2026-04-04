@@ -18,7 +18,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: navigationShell),
+      body: navigationShell,
       bottomNavigationBar: KawachBottomNavBar(
         currentIndex: navigationShell.currentIndex,
         onDestinationSelected: _onDestinationSelected,

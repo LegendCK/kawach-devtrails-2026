@@ -14,7 +14,74 @@ class SimulationProvider extends ChangeNotifier {
   String selectedZone = 'BTM Layout';
   String selectedSeverity = 'Severe';
 
-  Future<void> trigger(Function(Map<String, dynamic>) onComplete) async {
+  List<Map<String, dynamic>> _activeSteps = [...simulationSteps];
+
+  List<Map<String, dynamic>> get activeSteps => _activeSteps;
+
+  void setSelectedZone(String zone) {
+    selectedZone = zone;
+    notifyListeners();
+  }
+
+  void setSelectedDisruption(String disruption) {
+    selectedDisruption = disruption;
+    notifyListeners();
+  }
+
+  void setSelectedSeverity(String severity) {
+    selectedSeverity = severity;
+    notifyListeners();
+  }
+
+  Map<String, double> _severityProfile() {
+    switch (selectedSeverity) {
+      case 'Minor':
+        return {
+          'incomeDeviation': 0.42,
+          'activityDrop': 0.40,
+          'envScore': 0.58,
+          'lostHours': 2.0,
+        };
+      case 'Moderate':
+        return {
+          'incomeDeviation': 0.58,
+          'activityDrop': 0.56,
+          'envScore': 0.74,
+          'lostHours': 3.0,
+        };
+      default:
+        return {
+          'incomeDeviation': 0.69,
+          'activityDrop': 0.72,
+          'envScore': 0.89,
+          'lostHours': 4.0,
+        };
+    }
+  }
+
+  List<Map<String, dynamic>> _buildSteps({required double envScore}) {
+    final envLabel = (envScore).toStringAsFixed(2);
+    return [
+      {'title': '$selectedDisruption detected in $selectedZone', 'delayMs': 0},
+      {'title': 'Env score: $envLabel - Threshold exceeded', 'delayMs': 2000},
+      {'title': 'Rider verified in zone - GPS active', 'delayMs': 4000},
+      {'title': 'Hybrid score calculation in progress', 'delayMs': 6000},
+      {'title': 'Payout decision generated', 'delayMs': 8000},
+      {'title': 'Amount disbursed to rider account', 'delayMs': 10000},
+    ];
+  }
+
+  Future<void> trigger({
+    required int coverageRemaining,
+    required Function(Map<String, dynamic>) onComplete,
+  }) async {
+    final profile = _severityProfile();
+    final incomeDeviation = profile['incomeDeviation']!;
+    final activityDrop = profile['activityDrop']!;
+    final envScore = profile['envScore']!;
+    final lostHours = profile['lostHours']!;
+
+    _activeSteps = _buildSteps(envScore: envScore);
     isRunning = true;
     isComplete = false;
     completedSteps = 0;
@@ -22,11 +89,11 @@ class SimulationProvider extends ChangeNotifier {
     activeZone = selectedZone;
     notifyListeners();
 
-    for (int i = 0; i < simulationSteps.length; i++) {
+    for (int i = 0; i < _activeSteps.length; i++) {
       final delay = i == 0
           ? 0
-          : (simulationSteps[i]['delayMs'] as int) -
-                (simulationSteps[i - 1]['delayMs'] as int);
+          : (_activeSteps[i]['delayMs'] as int) -
+                (_activeSteps[i - 1]['delayMs'] as int);
       await Future.delayed(Duration(milliseconds: delay));
       completedSteps = i + 1;
       notifyListeners();
@@ -38,22 +105,26 @@ class SimulationProvider extends ChangeNotifier {
 
     final payout = calculatePayout(
       expectedIncome: 90.0,
-      incomeDeviation: 0.69,
-      activityDrop: 0.72,
-      envScore: 0.89,
-      lostHours: 4.0,
-      coverageRemaining: 1600,
+      incomeDeviation: incomeDeviation,
+      activityDrop: activityDrop,
+      envScore: envScore,
+      lostHours: lostHours,
+      coverageRemaining: coverageRemaining,
     );
+
+    final hybridScore =
+        0.5 * incomeDeviation + 0.3 * activityDrop + 0.2 * envScore;
 
     onComplete({
       'disruptionType': selectedDisruption,
       'payout': payout,
-      'hybridScore': 0.711,
-      'incomeDeviation': 0.69,
-      'activityDrop': 0.72,
-      'envScore': 0.89,
+      'hybridScore': hybridScore,
+      'incomeDeviation': incomeDeviation,
+      'activityDrop': activityDrop,
+      'envScore': envScore,
     });
 
+    isRunning = false;
     await Future.delayed(const Duration(seconds: 3));
     showToast = false;
     notifyListeners();
@@ -66,6 +137,7 @@ class SimulationProvider extends ChangeNotifier {
     showToast = false;
     completedSteps = 0;
     activeZone = '';
+    _activeSteps = [...simulationSteps];
     notifyListeners();
   }
 }

@@ -27,7 +27,55 @@ class AppProvider extends ChangeNotifier {
 
   List<Map<String, dynamic>> claims = [...mockClaimsHistory];
 
+  static const Map<String, Set<String>> _tierCoverage = {
+    'Basic': {'Heavy Rainfall', 'Urban Flooding', 'Extreme Heat'},
+    'Standard': {
+      'Heavy Rainfall',
+      'Urban Flooding',
+      'Extreme Heat',
+      'Severe AQI',
+    },
+    'Premium': {
+      'Heavy Rainfall',
+      'Urban Flooding',
+      'Extreme Heat',
+      'Severe AQI',
+      'Severe Thunderstorm',
+      'Thunderstorm',
+    },
+  };
+
   int get coverageRemaining => coverageLimit - coverageUsed;
+
+  String _canonicalDisruption(String disruptionType) {
+    final lower = disruptionType.toLowerCase();
+    if (lower.contains('flood')) return 'Urban Flooding';
+    if (lower.contains('rain')) return 'Heavy Rainfall';
+    if (lower.contains('heat')) return 'Extreme Heat';
+    if (lower.contains('aq')) return 'Severe AQI';
+    if (lower.contains('thunder')) return 'Severe Thunderstorm';
+    return disruptionType;
+  }
+
+  bool isDisruptionCovered(String disruptionType) {
+    final canonical = _canonicalDisruption(disruptionType);
+    final coverage = _tierCoverage[selectedPolicyTier] ?? const <String>{};
+    return coverage.contains(canonical);
+  }
+
+  String? getClaimEligibilityError(String disruptionType) {
+    if (!hasPurchasedPolicy) {
+      return 'No active policy. Purchase a policy before running simulation.';
+    }
+    if (coverageRemaining <= 0) {
+      return 'Weekly coverage is exhausted. Claim cannot be filed.';
+    }
+    if (!isDisruptionCovered(disruptionType)) {
+      final canonical = _canonicalDisruption(disruptionType);
+      return '$canonical is not covered under your $selectedPolicyTier plan.';
+    }
+    return null;
+  }
 
   String get policyValidUntil {
     final baseDate = policyPurchasedAt ?? DateTime.now();
@@ -188,10 +236,16 @@ class AppProvider extends ChangeNotifier {
     required double activityDrop,
     required double envScore,
   }) {
+    final eligibilityError = getClaimEligibilityError(disruptionType);
+    if (eligibilityError != null) {
+      throw StateError(eligibilityError);
+    }
+
+    final canonicalType = _canonicalDisruption(disruptionType);
     claims.insert(0, {
       'id': 'CLM-${DateTime.now().millisecondsSinceEpoch}',
       'date': 'Today',
-      'type': disruptionType,
+      'type': canonicalType,
       'payout': payout,
       'status': 'Paid',
       'hybridScore': hybridScore,
@@ -203,11 +257,11 @@ class AppProvider extends ChangeNotifier {
     coverageUsed += payout;
 
     // Keep dashboard pricing/risk responsive to the latest disruption context.
-    if (disruptionType.toLowerCase().contains('rain')) {
+    if (canonicalType.toLowerCase().contains('rain')) {
       rainfallMm = 78;
-    } else if (disruptionType.toLowerCase().contains('heat')) {
+    } else if (canonicalType.toLowerCase().contains('heat')) {
       temperatureC = 42;
-    } else if (disruptionType.toLowerCase().contains('aq')) {
+    } else if (canonicalType.toLowerCase().contains('aq')) {
       aqi = 285;
     }
     conditionUpdatedAt = DateTime.now();
