@@ -7,8 +7,10 @@ import '../core/constants.dart';
 
 class AppProvider extends ChangeNotifier {
   static const String _storageKey = 'kawach_app_state_v1';
+  static const String _seedUserPhone = '9876543210';
 
   final Set<String> _knownUsers = {'9876543210'};
+  final Map<String, List<Map<String, dynamic>>> _claimsByPhone = {};
 
   String riderName = '';
   String riderPhone = '';
@@ -30,7 +32,7 @@ class AppProvider extends ChangeNotifier {
   bool isSessionActive = false;
   DateTime? sessionStart;
 
-  List<Map<String, dynamic>> claims = [...mockClaimsHistory];
+  List<Map<String, dynamic>> claims = [];
 
   AppProvider() {
     _hydrateState();
@@ -56,8 +58,39 @@ class AppProvider extends ChangeNotifier {
 
   int get coverageRemaining => coverageLimit - coverageUsed;
 
+  String get _currentUserPhoneKey => _normalizePhone(riderPhone);
+
+  List<Map<String, dynamic>> _seedClaimsIfNeeded(String phoneKey) {
+    if (phoneKey == _seedUserPhone) {
+      return mockClaimsHistory
+          .map((claim) => Map<String, dynamic>.from(claim))
+          .toList();
+    }
+    return <Map<String, dynamic>>[];
+  }
+
+  void _loadClaimsForPhone(String phoneKey) {
+    final scopedClaims = _claimsByPhone[phoneKey];
+    claims =
+        scopedClaims
+            ?.map((claim) => Map<String, dynamic>.from(claim))
+            .toList() ??
+        _seedClaimsIfNeeded(phoneKey);
+  }
+
+  void _cacheCurrentClaims() {
+    final phoneKey = _currentUserPhoneKey;
+    if (phoneKey.isEmpty) {
+      return;
+    }
+    _claimsByPhone[phoneKey] = claims
+        .map((claim) => Map<String, dynamic>.from(claim))
+        .toList();
+  }
+
   Future<void> _persistState() async {
     final prefs = await SharedPreferences.getInstance();
+    _cacheCurrentClaims();
     final payload = {
       'knownUsers': _knownUsers.toList(),
       'riderName': riderName,
@@ -77,6 +110,7 @@ class AppProvider extends ChangeNotifier {
       'isSessionActive': isSessionActive,
       'sessionStart': sessionStart?.toIso8601String(),
       'claims': claims,
+      'claimsByPhone': _claimsByPhone,
     };
     await prefs.setString(_storageKey, jsonEncode(payload));
   }
@@ -97,6 +131,22 @@ class AppProvider extends ChangeNotifier {
         _knownUsers
           ..clear()
           ..addAll(knownUsersRaw.map((e) => e.toString()));
+      }
+
+      final claimsByPhoneRaw =
+          payload['claimsByPhone'] as Map<String, dynamic>?;
+      if (claimsByPhoneRaw != null) {
+        _claimsByPhone
+          ..clear()
+          ..addEntries(
+            claimsByPhoneRaw.entries.map((entry) {
+              final list = (entry.value as List<dynamic>? ?? const <dynamic>[])
+                  .whereType<Map<String, dynamic>>()
+                  .map((claim) => Map<String, dynamic>.from(claim))
+                  .toList();
+              return MapEntry(entry.key, list);
+            }),
+          );
       }
 
       riderName = (payload['riderName'] as String?) ?? riderName;
@@ -135,11 +185,18 @@ class AppProvider extends ChangeNotifier {
 
       final claimsRaw = payload['claims'] as List<dynamic>?;
       if (claimsRaw != null) {
-        claims = claimsRaw
+        final legacyClaims = claimsRaw
             .whereType<Map<String, dynamic>>()
             .map((claim) => Map<String, dynamic>.from(claim))
             .toList();
+        final legacyPhoneKey = _normalizePhone(riderPhone);
+        if (legacyPhoneKey.isNotEmpty &&
+            !_claimsByPhone.containsKey(legacyPhoneKey)) {
+          _claimsByPhone[legacyPhoneKey] = legacyClaims;
+        }
       }
+
+      _loadClaimsForPhone(_normalizePhone(riderPhone));
 
       notifyListeners();
     } catch (_) {
@@ -211,6 +268,36 @@ class AppProvider extends ChangeNotifier {
 
   double get aqiRiskScore => ((aqi / 300) * 100).clamp(0, 100).toDouble();
 
+  String get riskBand {
+    final score = currentRiskScore;
+    if (score < 35) return 'Low';
+    if (score < 60) return 'Moderate';
+    if (score < 80) return 'High';
+    return 'Severe';
+  }
+
+  int premiumQuoteForTier(String tier) {
+    return calculateWeeklyPremium(
+      tier: tier,
+      riskScore: currentRiskScore.toDouble(),
+      reputationScore: 75,
+    );
+  }
+
+  int get dynamicPremium => premiumQuoteForTier(selectedPolicyTier);
+
+  void syncSelectedTierPremium() {
+    final nextPremium = premiumQuoteForTier(selectedPolicyTier);
+    final nextCoverage = getCoverageFromTier(selectedPolicyTier);
+    if (premium == nextPremium && coverageLimit == nextCoverage) {
+      return;
+    }
+    premium = nextPremium;
+    coverageLimit = nextCoverage;
+    notifyListeners();
+    _persistState();
+  }
+
   Map<String, double> get pricingDriverContribution {
     final rain = 0.4 * rainRiskScore;
     final temp = 0.3 * temperatureRiskScore;
@@ -224,41 +311,6 @@ class AppProvider extends ChangeNotifier {
       'Heat': (temp / total).clamp(0, 1),
       'AQI': (air / total).clamp(0, 1),
     };
-  }
-
-  int get dynamicPremium => premiumQuoteForTier(selectedPolicyTier);
-
-  int get estimatedReputationScore {
-    final paidClaims = claims
-        .where((claim) => claim['status'] == 'Paid')
-        .length;
-    final score = 84 + (paidClaims >= 4 ? 8 : (paidClaims * 2));
-    return score.clamp(70, 95);
-  }
-
-  int premiumQuoteForTier(String tier) {
-    return calculateWeeklyPremium(
-      tier: tier,
-      riskScore: currentRiskScore.toDouble(),
-      reputationScore: estimatedReputationScore,
-    );
-  }
-
-  void syncSelectedTierPremium() {
-    final next = premiumQuoteForTier(selectedPolicyTier);
-    if (next != premium) {
-      premium = next;
-      notifyListeners();
-      _persistState();
-    }
-  }
-
-  String get riskBand {
-    final score = currentRiskScore;
-    if (score < 35) return 'Low';
-    if (score < 60) return 'Moderate';
-    if (score < 80) return 'High';
-    return 'Severe';
   }
 
   int get premiumDelta => dynamicPremium - premium;
@@ -276,22 +328,6 @@ class AppProvider extends ChangeNotifier {
     final severityFactor = 0.42 + (0.26 * riskImpact);
     return 90.0 * eventHours * severityFactor;
   }
-
-  int projectedUncoveredLossForTier(String tier) {
-    final coverage = getCoverageFromTier(tier);
-    final uncovered = projectedWeeklyIncomeLoss - coverage;
-    return uncovered <= 0 ? 0 : uncovered.round();
-  }
-
-  double protectionCoverageRatioForTier(String tier) {
-    final projectedLoss = projectedWeeklyIncomeLoss;
-    if (projectedLoss <= 0) return 1;
-    final uncovered = projectedUncoveredLossForTier(tier);
-    return (1 - (uncovered / projectedLoss)).clamp(0, 1).toDouble();
-  }
-
-  double get currentProtectionCoverageRatio =>
-      protectionCoverageRatioForTier(selectedPolicyTier);
 
   String get conditionUpdateLabel {
     final mins = DateTime.now().difference(conditionUpdatedAt).inMinutes;
@@ -317,12 +353,14 @@ class AppProvider extends ChangeNotifier {
       riderPlatform = riderPlatform.isEmpty
           ? (mockRider['platform'] as String)
           : riderPlatform;
+      _loadClaimsForPhone(normalizedPhone);
       notifyListeners();
       _persistState();
       return '/home';
     }
 
     isRegistered = false;
+    claims = [];
     notifyListeners();
     _persistState();
     return '/profile-setup';
@@ -340,6 +378,7 @@ class AppProvider extends ChangeNotifier {
     riderPlatform = platform;
     isRegistered = true;
     _knownUsers.add(normalizedPhone);
+    _loadClaimsForPhone(normalizedPhone);
     notifyListeners();
     _persistState();
   }
