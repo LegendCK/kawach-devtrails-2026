@@ -1,7 +1,29 @@
-# Kawach: Income Protection for Gig Workers, Powered by Parametric Intelligence
+# Kawach: AI-Powered Parametric Income Insurance for India's Gig Delivery Workers
 
-> **Guidewire DEVTrails 2026 · Phase 1 Submission**
+> **Guidewire DEVTrails 2026 · Phase 2 Submission**
 > Team: **NoName.exe**
+
+## Quick Index
+
+- [The Problem in One Paragraph](#the-problem-in-one-paragraph)
+- [What We're Building](#what-were-building)
+- [Persona: Who We're Protecting](#persona-who-were-protecting)
+- [Core Disruptions Covered](#core-disruptions-covered)
+- [Weekly Premium Model](#weekly-premium-model)
+- [Parametric Trigger & Payout Logic](#parametric-trigger--payout-logic)
+- [AI/ML Integration](#aiml-integration)
+- [Fraud Detection Architecture](#fraud-detection-architecture)
+- [System Architecture](#system-architecture)
+- [Application Workflow](#application-workflow)
+- [Technology Stack](#technology-stack)
+- [How to Run the App](#how-to-run-the-app)
+- [Development Plan](#development-plan)
+- [Diagrams](#diagrams)
+- [Adversarial Defense & Anti-Spoofing Strategy](#adversarial-defense--anti-spoofing-strategy)
+- [Insurance Reputation Score](#insurance-reputation-score)
+- [Policy Exclusions & Insurance Domain Compliance](#policy-exclusions--insurance-domain-compliance)
+- [Regulatory Framework & Compliance](#regulatory-framework--compliance)
+- [Key Design Decisions & Justifications](#key-design-decisions--justifications)
 
 ---
 
@@ -315,16 +337,62 @@ End session → earnings summary · payout history displayed
 | Database | Supabase (PostgreSQL) | Managed Postgres, built-in auth, real-time subscriptions |
 | Geospatial | PostGIS (via Supabase) | Zone mapping, GPS-to-zone assignment, spatial queries |
 | ML / AI | Python · scikit-learn · Prophet | Gradient Boosting for risk scoring + fraud; Prophet for forecasting |
-| Weather API | OpenWeatherMap (free tier) | Rainfall, temperature, wind speed, storm alerts |
+| Weather API (Live) | OpenWeatherMap (student plan) | Real-time rainfall, temperature, wind speed, storm alerts for disruption polling |
+| Weather API (Historical) | Open-Meteo (free, no key) | Historical weather data for ML model training, one-time bulk pull |
 | Pollution API | AQICN (free tier) | Real-time AQI per city zone |
 | Payment | Razorpay Sandbox | Simulated premium collection + payout disbursement |
 | Notifications | Firebase Cloud Messaging | Push alerts for disruption events and payout confirmations |
 
 ---
 
+## How to Run the App
+
+### Prerequisites
+
+- Flutter SDK installed and available in PATH
+- Xcode (for iOS Simulator on macOS) or Android Studio + emulator/device
+- A connected physical device or running simulator/emulator
+
+### Run Steps (Flutter Mobile App)
+
+1. Open a terminal in the repository root.
+2. Move into the mobile app directory:
+
+```bash
+cd mobile
+```
+
+3. Install dependencies:
+
+```bash
+flutter pub get
+```
+
+4. Start the app:
+
+```bash
+flutter run
+```
+
+### Helpful Commands
+
+```bash
+flutter doctor
+flutter devices
+flutter clean
+flutter pub get
+```
+
+### Notes
+
+- The current demo flow is local-first in the Flutter app and can run without full backend setup.
+- If a device is not selected automatically, run `flutter devices` and then `flutter run -d <device_id>`.
+
+---
+
 ## Development Plan
 
-### Phase 1 (Current: Ideation & Foundation)
+### Phase 1 (Completed: Ideation & Foundation)
 - [x] Problem research and persona definition
 - [x] Parametric insurance domain research
 - [x] Disruption identification and threshold design
@@ -335,15 +403,19 @@ End session → earnings summary · payout history displayed
 - [x] System architecture and tech stack selection
 - [x] Diagrams: system architecture, trigger flow, fraud module, disruption engine, app workflow
 
-### Phase 2 (Weeks 3–4, Automation & Protection)
-- [ ] Flutter app: onboarding, KYC, policy purchase, work session
-- [ ] FastAPI backend: zone mapping, GPS ingestion, policy management
-- [ ] Disruption monitoring engine: 3–5 automated triggers via API polling
-- [ ] Dynamic premium calculation (ML risk score → tier assignment)
-- [ ] Basic fraud detection: GPS speed/jump checks, duplicate claim prevention
-- [ ] Razorpay sandbox integration for premium collection
+### Phase 2 (Current Submission: Local-First Prototype)
+- [x] Flutter app flow implemented: onboarding, profile setup, policy selection, payment success, home, map, claims, profile
+- [x] Policy acceptance integrated via in-app markdown document modal
+- [x] Claims screen supports Active + History tabs and staged pipeline progression
+- [x] Map simulation expanded to 10 Bengaluru zones with disruption-driven auto-claim flow
+- [x] Local persistence implemented for rider, policy, session, conditions, and claims
+- [x] Dynamic premium preview and risk-band presentation integrated in UI
+- [x] Profile includes reputation display, discount context, and policy controls
 
 ### Phase 3 (Weeks 5–6, Scale & Optimise)
+- [ ] Real backend APIs connected end-to-end (auth, sessions, disruptions, claims, payouts)
+- [ ] Background GPS tracking and server-side live polling wired to backend
+- [ ] Full offline/error/skeleton loading coverage across all screens
 - [ ] Advanced fraud detection: Isolation Forest, mock location detection
 - [ ] Hybrid payout model: full composite score calculation
 - [ ] Instant payout: Razorpay sandbox disburse to wallet/UPI
@@ -360,7 +432,7 @@ End session → earnings summary · payout history displayed
 ![System Architecture](diagrams/system_architecture.svg)
 
 ### End-to-End Application Flow
-![Application Flow](diagrams/flow_diagram.svg)
+![Application Flow](diagrams/Flow_diag.svg)
 
 ### Parametric Trigger Flow
 ![Parametric Trigger Flow](diagrams/parametric_trigger_flow.svg)
@@ -372,68 +444,71 @@ End session → earnings summary · payout history displayed
 ![Fraud Detection](diagrams/fraud_detection_module.svg)
 
 ### Mobile App Structure
-![Mobile App](diagrams/mobile_app_structure.svg)
+![Mobile App](diagrams/Mobile_App_Structure.svg)
+
+---
+
 
 ---
 
 ## Adversarial Defense & Anti-Spoofing Strategy
- 
+
 ### The Threat Model
- 
+
 A coordinated syndicate of riders uses GPS spoofing applications to fake their location inside a disruption zone while physically sitting at home. They organise via Telegram, meaning the fraud is simultaneous, large-scale, and timed precisely to coincide with a real weather event to make the false claims blend in with legitimate ones. Basic GPS coordinate validation cannot distinguish between a genuinely stranded rider and a spoofed one because both produce GPS coordinates inside the disruption zone. The defense must therefore operate on signals that GPS spoofing cannot fake.
- 
+
 ---
- 
+
 ### 1. Differentiating a Stranded Rider from a Bad Actor
- 
+
 The core insight is that a GPS spoofer is physically stationary at home while their device reports movement inside a flood zone. Physical stillness leaks across multiple sensor channels that spoofing apps do not touch.
- 
+
 **Accelerometer and gyroscope cross-validation**
- 
+
 A delivery rider navigating a waterlogged street produces continuous micro-vibrations: road surface feedback, engine vibration, handlebar movement, braking. A rider sitting at home produces none of these. The Kawach mobile app reads the device accelerometer and gyroscope at 10 Hz during active sessions. A session reporting GPS movement inside a disruption zone but showing accelerometer variance below the threshold for a stationary person is immediately flagged as physically inconsistent.
- 
+
 | Condition | GPS signal | Accelerometer variance | Classification |
 |-----------|-----------|----------------------|----------------|
 | Genuine stranded rider | Inside zone | Low (stopped, waiting) | Eligible, inactivity consistent with disruption |
 | Genuine active rider | Inside zone | High (moving, vibrating) | Eligible |
 | Spoofer at home | Inside zone (faked) | Near zero (lying still) | Flagged, physical stillness contradicts reported location |
- 
+
 **Network cell tower triangulation**
- 
+
 GPS coordinates can be faked at the application layer. Cell tower association cannot. The device's network registration data, which towers it is connected to and their signal strengths, is collected passively and cross-referenced against the reported GPS position. A device claiming to be in BTM Layout but connected to towers serving Yelahanka is a hard contradiction. This check requires no additional hardware and cannot be bypassed by standard GPS spoofing apps.
- 
+
 **Battery and thermal signature**
- 
+
 A rider navigating in 35°C heat with GPS, screen, and motor running for 4 hours has a predictable battery drain curve and elevated device temperature. A device running a spoofing app at home on Wi-Fi has a completely different profile: slower drain, stable temperature, often connected to a charger. Kawach monitors battery level deltas and, on supported Android devices, ambient temperature reported by the hardware thermal sensor.
- 
+
 **Dark store order data cross-reference**
- 
+
 This is the strongest signal available. If a rider claims to have been actively working during a disruption event, the platform cross-references Blinkit/Zepto platform activity logs (where API access exists) or infers activity from GPS trajectory patterns that match known dark store pickup routes. A rider with zero order completions, zero route patterns matching any dark store, and no pickup-zone dwell time during the claimed work session has no legitimate basis for a payout regardless of their reported location.
- 
+
 ---
- 
+
 ### 2. Detecting a Coordinated Fraud Ring
- 
+
 Individual spoofing is detectable through the signals above. A syndicate of 500 riders is detectable through network-level behavioral analysis that no individual spoofer can hide from.
- 
+
 **Simultaneous claim surge detection**
- 
+
 Under genuine disruption conditions, claims arrive in a geographic wave, riders in the most severely affected micro-zones trigger first, then adjacent zones as conditions spread. Syndicate fraud produces a different pattern: a sudden vertical spike in claims across multiple zones at the exact moment a weather alert is issued, with no geographic propagation pattern. Kawach's disruption engine maintains a rolling baseline of expected claims-per-zone-per-hour. A zone receiving 10x its expected claim rate within 5 minutes of a red-alert trigger fires a syndicate flag, not just an individual fraud flag.
- 
+
 **Device fingerprint clustering**
- 
+
 Spoofing applications leave consistent fingerprints: identical mock location provider signatures, identical GPS update cadences (spoofing apps typically update at exactly 1 Hz, real GPS varies), and identical sensor metadata patterns. When 50 devices in a single disruption event share the same GPS update interval, the same spoofing app signature, and the same accelerometer silence profile, that is not coincidence. Kawach hashes device sensor metadata and compares fingerprints across all claims within a disruption event window. Clusters of 5 or more devices with matching fingerprints are quarantined together.
- 
+
 **Social graph inference from zone entry timing**
- 
+
 Syndicate members coordinating via Telegram enter the spoofed zone within seconds of each other, because they receive the same message at the same time and trigger their spoofing apps simultaneously. Legitimate riders drift into disruption zones continuously as their shifts progress. Kawach records zone entry timestamps for all active sessions. A burst of 20+ zone entries within a 90-second window is a coordination signal. Real riders entering a flood zone are spread across hours, not seconds.
- 
+
 **Velocity impossibility across historical sessions**
- 
+
 Syndicate members often rotate across multiple fake zones in a single week to maximise payouts. A rider whose historical GPS sessions show them operating in Koramangala on Monday and Whitefield on Tuesday but claiming to be in BTM Layout during Wednesday's flood event, when their device has never previously logged activity in BTM Layout, is anomalous. Zone affinity scoring tracks each rider's historical operating zones. Claims from zones where a rider has less than 5% historical session presence are weighted as low-credibility.
- 
+
 **Specific data points the system analyses beyond GPS coordinates:**
- 
+
 | Data Point | What it detects |
 |------------|----------------|
 | Accelerometer variance (10 Hz) | Physical stillness while reporting movement |
@@ -447,64 +522,66 @@ Syndicate members often rotate across multiple fake zones in a single week to ma
 | Zone entry timestamp clustering | Telegram-coordinated simultaneous trigger |
 | Device sensor metadata hash | Shared spoofing app fingerprint across devices |
 | Historical zone affinity score | Rider claiming a zone they never work in |
- 
+
 ---
- 
+
 ### 3. UX Balance: Protecting Honest Riders from False Positives
- 
+
 The greatest risk of an aggressive anti-fraud system is penalising genuine workers. A rider in a real flood zone may have dropped their phone, exhausted their battery, or lost cell signal entirely, all of which can look like fraud signals if interpreted naively. Kawach's approach is to separate detection from denial.
- 
+
 **Tiered response, not binary block**
- 
+
 No single fraud signal blocks a payout. Each signal contributes to a fraud score. Only a score above the Critical threshold results in a held payout. A rider with a dead battery and no accelerometer data gets a Medium score, payout proceeds with an audit log, not a block.
- 
+
 | Fraud Score | Signals present | Action |
 |-------------|----------------|--------|
 | Low (0–30) | 0–1 weak signals | Payout proceeds, session logged |
 | Medium (31–60) | 2–3 signals, individually explainable | Payout proceeds, audit trail created |
 | High (61–85) | Multiple correlated signals | Payout held 24 hrs, rider notified, self-declaration requested |
 | Critical (86–100) | Coordinated signals including device fingerprint match | Payout blocked, case queued for review |
- 
+
 **Self-declaration for High-scored claims**
- 
+
 When a claim scores High, the rider receives a push notification explaining that their claim is under review and asking them to confirm one of three things: they were genuinely working, they experienced a network drop, or they were resting during the event. This is not an accusation, it is framed as a verification step. A honest rider confirms in one tap. A bad actor who did not expect this step typically abandons the claim. Confirmation data feeds back into the model to improve future scoring.
- 
+
 **Network drop grace window**
- 
+
 Bad weather causes genuine GPS signal loss and cell tower handoff failures. Kawach applies a 3-missed-ping grace window: up to 3 consecutive GPS updates can be absent without penalising the session. Beyond 3 missed pings, the session is marked as signal-interrupted rather than fraudulent, and the rider's last confirmed zone position is held for up to 15 minutes before the session is paused. This directly addresses the scenario where an honest rider in a genuine flood zone loses signal precisely because conditions are severe.
- 
+
 **Transparent claim status in the app**
- 
+
 Riders can see their claim status in real time, Active, Under Review, Approved, or Held. If held, they see a plain-language explanation (not a fraud accusation) and an estimated resolution time of 24 hours. This reduces support overhead and prevents the perception that the platform arbitrarily withholds money. For the 99% of legitimate riders, the experience is invisible, their claim clears automatically. The friction only surfaces for genuine anomalies.
- 
+
 **Syndicate quarantine does not punish bystanders**
- 
+
 When a coordinated fraud ring is detected in a zone, Kawach does not freeze all claims from that zone. It freezes only the claims belonging to the flagged device cluster. Legitimate riders in the same zone who show normal accelerometer variance, normal cell tower data, and normal zone affinity continue to receive payouts without interruption. The syndicate is isolated; the genuine disruption event is not.
- 
+
+---
+
 ---
 
 ## Insurance Reputation Score
- 
+
 ### The Concept
- 
+
 Every Kawach rider carries a dynamic **Insurance Reputation Score (0-100)**, a portable, behaviour-driven trust identity built from their real activity on the platform. It is the first financial trust score designed specifically for India's gig economy.
- 
+
 Unlike traditional credit scores that require bank history or employment records, the Kawach reputation score is built entirely from verified gig work behaviour. A rider who has never had a bank loan, never filed a tax return, and never held a formal job can build a high reputation score simply by working consistently and honestly.
- 
+
 The score persists across weeks, compounds over time, and travels with the rider. It is not reset by a single bad event. It is not zone-dependent. It is theirs.
- 
+
 ### Why This Is Different
- 
+
 Every other component of Kawach resets weekly, premiums, coverage limits, payout caps. The Insurance Reputation Score is the only feature that gets better the longer a rider uses the platform. This creates three things simultaneously that the rest of the architecture handles separately:
- 
+
 - A fraud deterrent (riders with high scores have too much to lose)
 - A dynamic pricing engine (score directly adjusts premium)
 - A retention mechanic (the score is worth protecting)
- 
+
 It also creates something no other parametric insurance product in India has attempted: a portable gig worker financial identity. A rider who builds a score of 85 on Kawach has verifiable proof of consistent, honest work behaviour, usable beyond insurance for loan access, platform incentives, or welfare scheme eligibility.
- 
+
 ### Score Components
- 
+
 | Factor | Weight | What It Measures |
 |--------|--------|-----------------|
 | Verified work activity | 30% | GPS-confirmed active sessions per week |
@@ -512,11 +589,11 @@ It also creates something no other parametric insurance product in India has att
 | Claim accuracy | 20% | Ratio of valid confirmed claims to total claims triggered |
 | Fraud signal history | 15% | Accumulated fraud risk score across all sessions |
 | Policy continuity | 10% | Consecutive weeks of active coverage without lapse |
- 
+
 The score is recalculated every Sunday night alongside the weekly premium cycle. It uses a rolling 12-week window, recent behaviour is weighted more heavily than older behaviour, so a rider who had a difficult month can recover their score within 6-8 weeks of consistent activity.
- 
+
 ### Score Bands and Benefits
- 
+
 | Score | Tier | Premium Effect | Claim Processing | Verification |
 |-------|------|---------------|-----------------|--------------|
 | 80-100 | Trusted | 15% discount | Instant, zero additional checks | GPS only |
@@ -524,9 +601,9 @@ The score is recalculated every Sunday night alongside the weekly premium cycle.
 | 40-59 | Building | Standard rate | Standard automated | Full 4-layer |
 | 20-39 | Developing | 10% loading | Enhanced checks | Full 4-layer + manual flag |
 | 0-19 | Restricted | 20% loading | Manual review required | Held pending review |
- 
+
 ### Worked Example, Arjun after 8 weeks
- 
+
 | Factor | Arjun's Score | Weight | Contribution |
 |--------|--------------|--------|--------------|
 | Verified work activity | 88 | 0.30 | 26.4 |
@@ -535,30 +612,129 @@ The score is recalculated every Sunday night alongside the weekly premium cycle.
 | Fraud signal history | 95 | 0.15 | 14.25 |
 | Policy continuity | 100 | 0.10 | 10.0 |
 | **Reputation Score** | | | **91.15, Trusted** |
- 
+
 At 91.15, Arjun pays Rs. 35 x 0.85 = **Rs. 29.75/week** (rounded to Rs. 30), receives instant payouts with zero additional verification, and has a portable trust record that reflects 8 weeks of consistent, honest work.
- 
+
 ### The Bigger Picture
- 
+
 India has 7.7 million gig workers with no formal financial identity. Kawach's Insurance Reputation Score is the beginning of an answer to that. It does not require a bank. It does not require an employer. It requires only that a rider shows up, works honestly, and lets the platform verify it.
- 
+
 That is infrastructure, not just a feature.
 
 ---
+
+---
+
+## Policy Exclusions & Insurance Domain Compliance
+
+### Standard Exclusions
+
+Kawach follows standard parametric insurance exclusion principles. The following events are explicitly excluded from coverage regardless of whether they cause income disruption:
+
+| Exclusion Category | Specific Exclusions |
+|-------------------|---------------------|
+| War and conflict | Acts of war, invasion, armed conflict, military operations, terrorism |
+| Civil unrest | Riots, insurrection, rebellion, unless a government-declared curfew is issued (government curfews are covered as a social disruption trigger) |
+| Pandemic and epidemic | Government-declared pandemics, epidemics, or biological events, including platform shutdowns caused by public health emergencies |
+| Nuclear and radiation | Nuclear reaction, radioactive contamination, ionising radiation |
+| Government seizure | Confiscation, nationalisation, or requisition of assets by government authority |
+| Intentional acts | Any disruption deliberately caused or provoked by the insured rider |
+| Pre-existing conditions | Disruptions that began before the policy activation window (enforced by the 12-24 hour waiting period) |
+| Fraud or misrepresentation | Claims where the rider is found to have manipulated location data, activity signals, or claim information |
+| Platform-side decisions | Income loss caused by platform deactivation, account suspension, or app-side policy changes, Kawach insures against environmental and social disruptions, not platform commercial decisions |
+
+### Coverage Scope Clarification
+
+Kawach covers **income loss caused by measurable external environmental and social disruptions** that make delivery operations temporarily impossible or unsafe. It does not cover:
+
+- Health, life, or accidental injury (covered by separate products)
+- Vehicle damage or repair costs
+- Platform incentive changes or surge pricing fluctuations
+- Personal financial decisions or voluntary inactivity
+- Income loss from causes not verifiable through objective third-party data sources
+
+This scope is intentionally narrow. Narrow scope reduces basis risk, simplifies actuarial modelling, and makes the product financially sustainable at Rs. 20-90 weekly premiums.
+
+### Subrogation and Double Recovery
+
+A rider who receives a Kawach payout for a disruption event may not also claim compensation for the same event from another insurance product, government welfare scheme, or platform-provided compensation. If double recovery is detected, the overpaid amount is deducted from the rider's next eligible payout. This is standard subrogation practice in Indian insurance under IRDAI guidelines.
+
+---
+
+## Regulatory Framework & Compliance
+
+### IRDAI Regulatory Positioning
+
+Kawach operates at the intersection of two established Indian insurance frameworks:
+
+**1. Parametric Insurance under IRDAI Sandbox**
+
+The Insurance Regulatory and Development Authority of India (IRDAI) introduced the Regulatory Sandbox framework in 2019 (IRDAI (Regulatory Sandbox) Regulations, 2019) to allow insurtech products to be tested in a controlled environment before full licensing. Kawach's parametric income protection model fits squarely within the sandbox criteria:
+
+- It is innovative and does not fit existing standard product categories
+- Coverage is measurable and objective (no subjective loss assessment)
+- It targets an underserved segment (gig workers)
+- Premium and payout structures are transparent and pre-defined
+
+The sandbox allows up to 12 months of live testing with real customers before requiring full IRDAI product approval.
+
+**2. Code on Social Security, 2020**
+
+The Code on Social Security, 2020 (CoSS 2020) formally recognises gig and platform workers within India's social security framework for the first time. Key provisions directly relevant to Kawach:
+
+- Section 114 mandates the central government to frame welfare schemes for gig workers covering life and disability cover, health and maternity benefits, old age protection, and any other benefit as determined by the government
+- Section 109 enables the creation of Social Security funds financed through platform contributions
+- The legislation explicitly identifies delivery partners on platforms like Blinkit and Zepto as platform-based gig workers entitled to these protections
+
+Kawach's parametric income protection product complements CoSS 2020, it does not replace government welfare but fills the income disruption gap that the legislation does not yet address.
+
+**3. Rajasthan Platform Based Gig Workers (Registration and Welfare) Act, 2023**
+
+Rajasthan became the first Indian state to legislate specifically for gig worker welfare. The act:
+
+- Creates a Gig Workers Welfare Board
+- Establishes a Welfare Fund financed by platform contributions
+- Mandates registration of gig workers to enable benefit access
+
+Kawach's Insurance Reputation Score is directly compatible with this registration model, a rider's Kawach score could serve as verifiable evidence of work history for welfare scheme eligibility.
+
+### Compliance Requirements for Production Deployment
+
+| Requirement | Regulatory Basis | Status for Hackathon |
+|-------------|-----------------|----------------------|
+| IRDAI product approval or sandbox registration | IRDAI Act 1999, Sandbox Regulations 2019 | Not required for hackathon prototype |
+| Partner insurer tie-up | All parametric products require a licensed Indian insurer as underwriter | Simulated for hackathon |
+| KYC and AML compliance | Prevention of Money Laundering Act, 2002 | Phone-based KYC simulated |
+| Data localisation | IT Act 2000, RBI data localisation guidelines | Supabase India region selected |
+| UPI payment compliance | NPCI UPI guidelines | Razorpay sandbox used |
+| GST on insurance premiums | 18% GST applicable on insurance premiums | Not applied in prototype |
+
+### Distribution Model and Regulatory Path
+
+The most compliant distribution path for Kawach at scale is a **Corporate Agent arrangement** with a licensed Indian insurer. Under this model:
+
+- Kawach operates as a technology platform and corporate agent
+- A licensed insurer (e.g. Bajaj Allianz, ICICI Lombard, or a dedicated insurtech insurer) underwrites the risk
+- Kawach handles onboarding, monitoring, claim triggering, and payout processing
+- The insurer handles regulatory compliance, reinsurance, and capital requirements
+
+This is the same model used by Digit Insurance, Acko, and other Indian insurtechs that operate as technology-first, asset-light insurance distributors.
+
+---
 ## Key Design Decisions & Justifications
- 
+
 **Why parametric over traditional insurance?**
 Arjun's income disruptions are simultaneous (affect hundreds of riders at once), short-duration (3–8 hrs), and objectively measurable. Traditional insurance requires individual damage assessment, too slow, too expensive, and impractical for events that last a few hours. Parametric triggers fire automatically when thresholds are crossed, delivering compensation within the same day.
- 
+
 **Why weekly pricing?**
 Gig workers are paid weekly by platforms. A monthly premium requires upfront capital that many workers don't hold. ₹35/week is a psychologically accessible number, one less fast food order, and aligns premium payment timing with earnings receipt.
- 
+
 **Why the Hybrid Model over a single trigger?**
 A single environmental trigger creates basis risk: the trigger fires but the rider wasn't actually affected, or vice versa. By combining income deviation (50%), activity drop (30%), and environmental score (20%), we triangulate actual impact from three independent data sources. This is the same principle used by Swiss Re and Arbol in their parametric products, multiple correlated signals reduce false payouts without reducing valid ones.
- 
+
 **Why 2 km × 2 km zones?**
 Smaller than ward boundaries (which average 15–20 km²), larger than individual GPS points. This scale matches the operational radius of a Blinkit dark store, the spatial resolution of CPCB pollution data (3–5 km station spacing), and the granularity of modern weather APIs (~1 km). It is the smallest unit at which all three data sources are reliable simultaneously.
- 
+
 ---
- 
-*Kawach · NoName.exe · Guidewire DEVTrails 2026 · Phase 1*
+
+*Kawach · NoName.exe · Guidewire DEVTrails 2026 · Phase 2*
