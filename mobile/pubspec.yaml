@@ -40,6 +40,7 @@ dependencies:
 
   # UI helpers
   cached_network_image: ^3.4.1
+  flutter_markdown: ^0.7.4
 
 dev_dependencies:
   flutter_test:
@@ -48,3 +49,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/policy/kawach_income_protection_policy.md

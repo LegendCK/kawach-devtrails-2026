@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../core/theme.dart';
 import '../providers/app_provider.dart';
@@ -14,10 +16,14 @@ class PolicySelectionScreen extends StatefulWidget {
 
 class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
   bool _termsAccepted = false;
+  late final Future<String> _policyMarkdownFuture;
 
   @override
   void initState() {
     super.initState();
+    _policyMarkdownFuture = rootBundle.loadString(
+      'assets/policy/kawach_income_protection_policy.md',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<AppProvider>().syncSelectedTierPremium();
@@ -131,10 +137,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
             height: 48,
             child: OutlinedButton(
               onPressed: () async {
-                final accepted = await _showTerms(
-                  context,
-                  requireAcceptance: true,
-                );
+                final accepted = await _showPolicyTerms(context);
                 if (accepted == true && mounted) {
                   setState(() {
                     _termsAccepted = true;
@@ -142,7 +145,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
                 }
               },
               child: Text(
-                _termsAccepted ? 'Terms Accepted' : 'Read & Accept Terms',
+                _termsAccepted ? 'Policy Accepted' : 'Read & Accept Policy',
               ),
             ),
           ),
@@ -224,10 +227,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
     );
   }
 
-  Future<bool?> _showTerms(
-    BuildContext context, {
-    required bool requireAcceptance,
-  }) {
+  Future<bool?> _showPolicyTerms(BuildContext context) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -249,7 +249,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Kawach Income Protection Terms',
+                              'Kawach Income Protection Policy',
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
@@ -261,79 +261,88 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
                       ),
                     ),
                     Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                        children: [
-                          _TermsBlock(
-                            title: 'Coverage Scope',
-                            lines: const [
-                              'Covers only verified income loss from qualifying disruption events.',
-                              'Does not cover health, accidents, vehicle damage, or general liability.',
-                              'Coverage applies only in your registered primary delivery zone.',
-                            ],
-                          ),
-                          _TermsBlock(
-                            title: 'Trigger Events',
-                            lines: const [
-                              'Heavy Rainfall: >= 50mm in 3 hours.',
-                              'Urban Flooding: >= 80mm + flood-prone zone flag.',
-                              'Extreme Heat: >= 43C for >= 2 consecutive hours.',
-                              'Severe AQI: >= 300 for >= 6 consecutive hours.',
-                              'Thunderstorm: wind >= 60 km/h + active storm alert.',
-                            ],
-                          ),
-                          _TermsBlock(
-                            title: 'Activation & Waiting',
-                            lines: const [
-                              'Policy duration is 7 days after activation.',
-                              'Waiting period is 12-24 hours after payment.',
-                              'Events that begin during waiting period are not covered.',
-                            ],
-                          ),
-                          _TermsBlock(
-                            title: 'Payout Model & Caps',
-                            lines: const [
-                              'Your payout is based on loss severity, drop in activity, and disruption intensity.',
-                              'The app automatically calculates payout after event verification.',
-                              'Caps: Rs.100/hour, Rs.1,500/event, Rs.2,000/week, Rs.6,000/month.',
-                            ],
-                          ),
-                          _TermsBlock(
-                            title: 'Important Rules',
-                            lines: const [
-                              'One active policy per rider at a time.',
-                              'Premium is non-refundable once waiting period starts.',
-                              'Fraud flags can delay, reduce, or block payout.',
-                            ],
-                          ),
-                          if (requireAcceptance) ...[
-                            const SizedBox(height: 14),
-                            CheckboxListTile(
-                              value: accepted,
-                              controlAffinity: ListTileControlAffinity.leading,
-                              onChanged: (value) {
-                                setModalState(() {
-                                  accepted = value ?? false;
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                              title: const Text(
-                                'I have read and accept the policy terms.',
+                      child: FutureBuilder<String>(
+                        future: _policyMarkdownFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (snapshot.hasError) {
+                            return const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                'Policy document could not be loaded.',
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 52,
-                              child: FilledButton(
-                                onPressed: accepted
-                                    ? () => Navigator.of(context).pop(true)
-                                    : null,
-                                child: const Text('I Agree & Continue'),
+                            );
+                          }
+
+                          final policyMarkdown = snapshot.data ?? '';
+
+                          return ListView(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                            children: [
+                              MarkdownBody(
+                                data: policyMarkdown,
+                                styleSheet:
+                                    MarkdownStyleSheet.fromTheme(
+                                      Theme.of(context),
+                                    ).copyWith(
+                                      p: const TextStyle(
+                                        height: 1.5,
+                                        fontFamily: 'Poppins',
+                                        color: KawachColors.textSecondary,
+                                      ),
+                                      h1: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: KawachColors.textPrimary,
+                                      ),
+                                      h2: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: KawachColors.textPrimary,
+                                      ),
+                                      h3: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: KawachColors.textPrimary,
+                                      ),
+                                      listBullet: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: KawachColors.textSecondary,
+                                      ),
+                                    ),
                               ),
-                            ),
-                          ],
-                        ],
+                              const SizedBox(height: 16),
+                              CheckboxListTile(
+                                value: accepted,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                onChanged: (value) {
+                                  setModalState(() {
+                                    accepted = value ?? false;
+                                  });
+                                },
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'I have read and accept the policy terms.',
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 52,
+                                child: FilledButton(
+                                  onPressed: accepted
+                                      ? () => Navigator.of(context).pop(true)
+                                      : null,
+                                  child: const Text('I Agree & Continue'),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -343,41 +352,6 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
           },
         );
       },
-    );
-  }
-}
-
-class _TermsBlock extends StatelessWidget {
-  const _TermsBlock({required this.title, required this.lines});
-
-  final String title;
-  final List<String> lines;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: KawachColors.surfaceTwo,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: KawachColors.borderSubtle),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 8),
-          for (final line in lines)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                '• $line',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
