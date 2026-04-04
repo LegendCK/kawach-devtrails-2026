@@ -179,7 +179,7 @@ A rider experiences multiple disruptions within a short period, such as:
 * Riders receive consistent protection  
 * System remains financially sustainable
 
-**Handling Across Tier 1, Tier 2, and Tier 3 Regions**
+## Handling Across Tier 1, Tier 2, and Tier 3 Regions
 
 ## 1\. Introduction
 

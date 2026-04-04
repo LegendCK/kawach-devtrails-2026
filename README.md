@@ -353,6 +353,23 @@ End session → earnings summary · payout history displayed
 - Xcode (for iOS Simulator on macOS) or Android Studio + emulator/device
 - A connected physical device or running simulator/emulator
 
+Official setup links:
+- Flutter SDK install guide: https://docs.flutter.dev/get-started/install
+- Android Studio: https://developer.android.com/studio
+- Xcode (macOS): https://developer.apple.com/xcode/
+
+### One-Time Environment Check
+
+Run these once to verify local setup:
+
+```bash
+flutter doctor
+flutter doctor -v
+flutter devices
+```
+
+Make sure at least one device/emulator is listed before running the app.
+
 ### Run Steps (Flutter Mobile App)
 
 1. Open a terminal in the repository root.
@@ -368,11 +385,45 @@ cd mobile
 flutter pub get
 ```
 
-4. Start the app:
+4. (Optional) Clean old build cache if you face startup/build issues:
+
+```bash
+flutter clean
+flutter pub get
+```
+
+5. Start the app:
 
 ```bash
 flutter run
 ```
+
+### Run on a Specific Platform
+
+Use a device id from `flutter devices`:
+
+```bash
+flutter run -d <device_id>
+```
+
+Examples:
+
+```bash
+flutter run -d ios
+flutter run -d android
+flutter run -d chrome
+```
+
+### Build Commands (Submission/QA)
+
+```bash
+flutter analyze
+flutter test
+flutter build apk --release
+flutter build ios --release
+```
+
+Use `flutter build ios --release` on macOS with Xcode configured.
 
 ### Helpful Commands
 
@@ -387,6 +438,8 @@ flutter pub get
 
 - The current demo flow is local-first in the Flutter app and can run without full backend setup.
 - If a device is not selected automatically, run `flutter devices` and then `flutter run -d <device_id>`.
+- First app launch may ask for location permissions; allow them to test session and map simulation flows.
+- Core demo path to verify after launch: Splash → Phone/OTP → Profile Setup → Policy → Home → Map Simulation → Claims.
 
 ---
 
