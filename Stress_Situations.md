@@ -2,7 +2,7 @@
 
 ## **1\. Introduction**
 
-Kavach is designed as a parametric, AI-driven income protection system for gig workers operating in highly dynamic and uncertain environments. While the system performs efficiently under normal conditions, real-world deployment introduces complex stress situations where multiple disruptions, large-scale claims, and inconsistent data signals occur simultaneously.
+Kawach is designed as a parametric, AI-driven income protection system for gig workers operating in highly dynamic and uncertain environments. While the system performs efficiently under normal conditions, real-world deployment introduces complex stress situations where multiple disruptions, large-scale claims, and inconsistent data signals occur simultaneously.
 
 These stress situations are critical because they test:
 
@@ -11,11 +11,11 @@ These stress situations are critical because they test:
 * The **scalability** of system processing  
 * The **financial sustainability** of the insurance model
 
-Unlike traditional systems, Kavach is built to remain stable and reliable even under such high-pressure conditions by combining hybrid decision logic, external data integration, and controlled payout execution.
+Unlike traditional systems, Kawach is built to remain stable and reliable even under such high-pressure conditions by combining hybrid decision logic, external data integration, and controlled payout execution.
 
 ## **2\. Nature of Stress Situations**
 
-Stress situations in Kavach arise when one or more of the following occur:
+Stress situations in Kawach arise when one or more of the following occur:
 
 * Multiple environmental triggers overlap in the same region  
 * Large numbers of riders become eligible simultaneously  
@@ -46,9 +46,9 @@ If each trigger is processed independently:
 * Financial exposure increases unnecessarily  
 * System logic becomes inconsistent
 
-### **Kavach System Response**
+### **Kawach System Response**
 
-Kavach treats overlapping triggers as a **single unified disruption event**.
+Kawach treats overlapping triggers as a **single unified disruption event**.
 
 * All environmental signals are aggregated  
 * A single event identifier is created  
@@ -107,7 +107,7 @@ If scaled to 100,000 riders:
 
 Total payout ≈ ₹1.89 crore
 
-### **Kavach System Response**
+### **Kawach System Response**
 
 1. **Payout Caps**  
     Each rider is subject to predefined limits (hourly, event-level, weekly, and monthly), ensuring controlled individual exposure.  
@@ -142,7 +142,7 @@ Missing data can lead to:
 * Incorrect fraud detection  
 * Missed payout eligibility
 
-### **Kavach System Response**
+### **Kawach System Response**
 
 * Short gaps in data are tolerated  
 * Last known valid location is used  
@@ -168,7 +168,7 @@ A rider experiences multiple disruptions within a short period, such as:
 * Total payout may accumulate rapidly  
 * Financial exposure must be controlled
 
-### **Kavach System Response**
+### **Kawach System Response**
 
 * Continuous tracking of cumulative payouts  
 * Enforcement of strict caps  
@@ -183,19 +183,19 @@ A rider experiences multiple disruptions within a short period, such as:
 
 ## 1\. Introduction
 
-A key challenge in building a nationwide system like Kavach is handling variation across Tier 1, Tier 2, and Tier 3 regions. Traditional approaches rely on these classifications to define system behavior, assuming that metropolitan areas are inherently more complex while smaller regions are simpler or lower risk.
+A key challenge in building a nationwide system like Kawach is handling variation across Tier 1, Tier 2, and Tier 3 regions. Traditional approaches rely on these classifications to define system behavior, assuming that metropolitan areas are inherently more complex while smaller regions are simpler or lower risk.
 
-Kavach removes this assumption entirely. Instead of treating regions differently based on tier, it evaluates risk at the zone level, using historical data to understand how each location actually behaves. This ensures that the system remains consistent across all regions while still being highly localized in its decisions.
+Kawach removes this assumption entirely. Instead of treating regions differently based on tier, it evaluates risk at the zone level, using historical data to understand how each location actually behaves. This ensures that the system remains consistent across all regions while still being highly localized in its decisions.
 
 ## 2\. Historical Data as the Foundation
 
-For every zone, Kavach maintains approximately 3–5 years of daily historical data. This dataset includes environmental variables such as rainfall, temperature, and wind, along with derived disruption indicators like heavy rainfall, heatwave, and storm flags. Temporal features such as month and seasonal markers help capture recurring patterns.
+For every zone, Kawach maintains approximately 3–5 years of daily historical data. This dataset includes environmental variables such as rainfall, temperature, and wind, along with derived disruption indicators like heavy rainfall, heatwave, and storm flags. Temporal features such as month and seasonal markers help capture recurring patterns.
 
 This data allows the system to move beyond raw measurements and understand how often disruptions occur, how severe they are, and when they typically happen.
 
 ## 3\. Converting Historical Data into Risk
 
-Kavach interprets this data along three key dimensions:
+Kawach interprets this data along three key dimensions:
 
 * Frequency — how often disruptive conditions occur  
 * Severity — how intense those disruptions are  
@@ -209,11 +209,11 @@ Each zone is assigned a risk score (0–100) based on weighted environmental fac
 
 ## 5\. Why Tier-Based Differentiation is Not Required
 
-Since risk is computed from real data, Kavach does not rely on tier classification. The system naturally adapts to the actual conditions of each location.
+Since risk is computed from real data, Kawach does not rely on tier classification. The system naturally adapts to the actual conditions of each location.
 
 ### Table: Tier vs Data-Driven Risk
 
-| Location | Tier Label | Observed Behavior | Kavach Risk Outcome |
+| Location | Tier Label | Observed Behavior | Kawach Risk Outcome |
 | ----- | ----- | ----- | ----- |
 | Urban area with strong drainage | Tier 1 | Moderate disruptions | Moderate risk |
 | Flood-prone small town | Tier 3 | Frequent severe disruptions | High risk |
@@ -223,7 +223,7 @@ This demonstrates that risk does not correlate reliably with tier, making tier-b
 
 ## 6\. Handling Data Differences Across Regions
 
-While real-time data availability may vary, historical data provides a stable foundation. In regions with limited real-time inputs, Kavach relies more heavily on long-term patterns and derived indicators. This ensures that even low-infrastructure areas are accurately modeled without compromising system performance.
+While real-time data availability may vary, historical data provides a stable foundation. In regions with limited real-time inputs, Kawach relies more heavily on long-term patterns and derived indicators. This ensures that even low-infrastructure areas are accurately modeled without compromising system performance.
 
 ## 7\. Integration with System Decisions
 
