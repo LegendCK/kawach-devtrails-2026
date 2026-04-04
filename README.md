@@ -432,7 +432,7 @@ flutter pub get
 ![System Architecture](diagrams/system_architecture.svg)
 
 ### End-to-End Application Flow
-![Application Flow](diagrams/Flow_diag.svg)
+![Application Flow](diagrams/flow_diagram.svg)
 
 ### Parametric Trigger Flow
 ![Parametric Trigger Flow](diagrams/parametric_trigger_flow.svg)

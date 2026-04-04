@@ -1,4 +1,4 @@
-# **Kavach: Stress Situations and System Handling Framework**
+# **Kawach: Stress Situations and System Handling Framework**
 
 ## **1\. Introduction**
 
