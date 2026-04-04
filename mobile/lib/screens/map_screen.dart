@@ -305,6 +305,11 @@ class _MapScreenState extends State<MapScreen> {
           activityDrop: result['activityDrop'] as double,
           envScore: result['envScore'] as double,
           lostHours: (result['lostHours'] as num?)?.toInt() ?? 3,
+          rainfall: (result['rainfall'] as num?)?.toDouble(),
+          temperature: (result['temperature'] as num?)?.toDouble(),
+          aqi: (result['aqi'] as num?)?.toInt(),
+          outlier: result['outlier'] as bool?,
+          trendLabel: result['trendLabel'] as String?,
         );
         appProvider.runClaimPipeline(claimId);
       },

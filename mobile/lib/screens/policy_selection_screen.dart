@@ -32,6 +32,20 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
     final premiumPremium = appProvider.premiumQuoteForTier('Premium');
     final standardVsBasic = (standardPremium - basicPremium).clamp(0, 9999);
     final premiumVsStandard = (premiumPremium - standardPremium).clamp(0, 9999);
+    final basicUncovered = appProvider.projectedUncoveredLossForTier('Basic');
+    final standardUncovered = appProvider.projectedUncoveredLossForTier(
+      'Standard',
+    );
+    final premiumUncovered = appProvider.projectedUncoveredLossForTier(
+      'Premium',
+    );
+    final bestTier =
+        premiumUncovered <= standardUncovered &&
+            premiumUncovered <= basicUncovered
+        ? 'Premium'
+        : standardUncovered <= basicUncovered
+        ? 'Standard'
+        : 'Basic';
 
     return Scaffold(
       appBar: AppBar(
@@ -96,6 +110,74 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
             priceDiffLabel: '+Rs. $premiumVsStandard vs Standard',
             selected: appProvider.selectedPolicyTier == 'Premium',
             onTap: () => appProvider.selectPolicyTier('Premium'),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: KawachColors.surfaceTwo,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: KawachColors.borderSubtle),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'What-if Advisor (next week)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: KawachColors.textPrimary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Projected disruption loss: Rs. ${appProvider.projectedWeeklyIncomeLoss.round()}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: KawachColors.textSecondary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Basic uncovered: Rs. $basicUncovered',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: KawachColors.textMuted,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                Text(
+                  'Standard uncovered: Rs. $standardUncovered',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: KawachColors.textMuted,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                Text(
+                  'Premium uncovered: Rs. $premiumUncovered',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: KawachColors.textMuted,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Best protection pick right now: $bestTier',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: KawachColors.indigoLight,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
           Text(

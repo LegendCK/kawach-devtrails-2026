@@ -263,6 +263,36 @@ class AppProvider extends ChangeNotifier {
 
   int get premiumDelta => dynamicPremium - premium;
 
+  double get projectedWeeklyIncome {
+    final riskImpact = (currentRiskScore / 100).clamp(0.2, 0.95);
+    final expectedHours = isSessionActive ? 54.0 : 48.0;
+    final hourly = 90.0;
+    return hourly * expectedHours * (1 - (0.22 * riskImpact));
+  }
+
+  double get projectedWeeklyIncomeLoss {
+    final riskImpact = (currentRiskScore / 100).clamp(0.2, 0.95);
+    final eventHours = 3.0 + (2.8 * riskImpact);
+    final severityFactor = 0.42 + (0.26 * riskImpact);
+    return 90.0 * eventHours * severityFactor;
+  }
+
+  int projectedUncoveredLossForTier(String tier) {
+    final coverage = getCoverageFromTier(tier);
+    final uncovered = projectedWeeklyIncomeLoss - coverage;
+    return uncovered <= 0 ? 0 : uncovered.round();
+  }
+
+  double protectionCoverageRatioForTier(String tier) {
+    final projectedLoss = projectedWeeklyIncomeLoss;
+    if (projectedLoss <= 0) return 1;
+    final uncovered = projectedUncoveredLossForTier(tier);
+    return (1 - (uncovered / projectedLoss)).clamp(0, 1).toDouble();
+  }
+
+  double get currentProtectionCoverageRatio =>
+      protectionCoverageRatioForTier(selectedPolicyTier);
+
   String get conditionUpdateLabel {
     final mins = DateTime.now().difference(conditionUpdatedAt).inMinutes;
     if (mins <= 0) return 'Updated just now';
@@ -366,6 +396,11 @@ class AppProvider extends ChangeNotifier {
     required double activityDrop,
     required double envScore,
     required int lostHours,
+    double? rainfall,
+    double? temperature,
+    int? aqi,
+    bool? outlier,
+    String? trendLabel,
   }) {
     final eligibilityError = getClaimEligibilityError(disruptionType);
     if (eligibilityError != null) {
@@ -388,6 +423,11 @@ class AppProvider extends ChangeNotifier {
       'activityDrop': activityDrop,
       'envScore': envScore,
       'lostHours': lostHours,
+      if (rainfall != null) 'rainfall': rainfall,
+      if (temperature != null) 'temperature': temperature,
+      if (aqi != null) 'aqi': aqi,
+      if (outlier != null) 'outlier': outlier,
+      if (trendLabel != null) 'trendLabel': trendLabel,
     });
     coverageUsed += payout;
 

@@ -163,6 +163,15 @@ class _ClaimsScreenState extends State<ClaimsScreen>
     final claimDate = claim['date'] as String? ?? 'Today';
     final claimId = claim['id'] as String? ?? 'CLM-NA';
     final zone = claim['zone'] as String? ?? 'BTM Layout';
+    final incomeDeviation = (claim['incomeDeviation'] as num?)?.toDouble() ?? 0;
+    final activityDrop = (claim['activityDrop'] as num?)?.toDouble() ?? 0;
+    final envScore = (claim['envScore'] as num?)?.toDouble() ?? 0;
+    final lostHours = (claim['lostHours'] as num?)?.toInt() ?? 3;
+    final rainfall = (claim['rainfall'] as num?)?.toDouble();
+    final temperature = (claim['temperature'] as num?)?.toDouble();
+    final aqi = (claim['aqi'] as num?)?.toInt();
+    final trendLabel = claim['trendLabel'] as String?;
+    final outlier = claim['outlier'] as bool? ?? false;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -271,20 +280,120 @@ class _ClaimsScreenState extends State<ClaimsScreen>
               const SizedBox(height: 6),
               _breakdownBar(
                 label: 'Income Deviation',
-                value: (claim['incomeDeviation'] as num?)?.toDouble() ?? 0,
+                value: incomeDeviation,
                 color: const Color(0xFF3B82F6),
               ),
               const SizedBox(height: 8),
               _breakdownBar(
                 label: 'Activity Drop',
-                value: (claim['activityDrop'] as num?)?.toDouble() ?? 0,
+                value: activityDrop,
                 color: const Color(0xFFF97316),
               ),
               const SizedBox(height: 8),
               _breakdownBar(
                 label: 'Env Score',
-                value: (claim['envScore'] as num?)?.toDouble() ?? 0,
+                value: envScore,
                 color: const Color(0xFF64748B),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: KawachColors.surfaceTwo,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: KawachColors.borderSubtle),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Payout Explainability Receipt',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: KawachColors.textPrimary,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Settled payout: Rs. $payout over ${lostHours}h disruption window',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: KawachColors.textMuted,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: outlier
+                      ? const Color(0xFFEF4444).withValues(alpha: 0.1)
+                      : KawachColors.surfaceTwo,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: outlier
+                        ? const Color(0xFFEF4444).withValues(alpha: 0.3)
+                        : KawachColors.borderSubtle,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Disruption Replay',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: KawachColors.textPrimary,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Detected in $zone -> verified activity -> payout calculated -> paid',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: KawachColors.textMuted,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    if (rainfall != null && temperature != null && aqi != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          'Conditions: ${rainfall.toStringAsFixed(0)}mm, ${temperature.toStringAsFixed(1)}C, AQI $aqi',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: KawachColors.textMuted,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                    if (trendLabel != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          outlier
+                              ? 'Pattern: $trendLabel (anomaly spike)'
+                              : 'Pattern: $trendLabel',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: outlier
+                                ? const Color(0xFFEF4444)
+                                : KawachColors.textMuted,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),

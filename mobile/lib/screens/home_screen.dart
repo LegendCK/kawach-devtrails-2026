@@ -55,6 +55,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ? 'Conditions may trigger auto-claim filing if thresholds are crossed.'
             : 'Severe weather and AQI signals detected. Auto-filing is on high alert.';
         final driverContribution = appProvider.pricingDriverContribution;
+        final protectionRatio = appProvider.currentProtectionCoverageRatio;
+        final uncovered = appProvider.projectedUncoveredLossForTier(
+          appProvider.selectedPolicyTier,
+        );
 
         return Scaffold(
           backgroundColor: KawachColors.background,
@@ -519,6 +523,70 @@ class _HomeScreenState extends State<HomeScreen> {
                                     label: 'AQI',
                                     value: driverContribution['AQI'] ?? 0,
                                     color: const Color(0xFF64748B),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+
+                            // Protection gap meter
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: KawachColors.surfaceTwo,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: KawachColors.borderSubtle,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Protection Gap Meter',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: KawachColors.textPrimary,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Current protection: ${(protectionRatio * 100).round()}%',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: KawachColors.textPrimary,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Projected uncovered loss this week: Rs. $uncovered',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: KawachColors.textMuted,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(999),
+                                    child: LinearProgressIndicator(
+                                      value: protectionRatio,
+                                      minHeight: 8,
+                                      backgroundColor:
+                                          KawachColors.borderSubtle,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        protectionRatio >= 0.8
+                                            ? const Color(0xFF10B981)
+                                            : protectionRatio >= 0.6
+                                            ? const Color(0xFFF59E0B)
+                                            : const Color(0xFFEF4444),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
