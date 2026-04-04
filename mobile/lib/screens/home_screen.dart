@@ -17,6 +17,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(
       builder: (context, appProvider, _) {
+        final riderName = appProvider.riderName.trim().isEmpty
+            ? (mockRider['name'] as String)
+            : appProvider.riderName;
         final coveragePercent =
             appProvider.coverageRemaining / appProvider.coverageLimit;
         final premiumDelta = appProvider.premiumDelta;
@@ -101,7 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      appProvider.riderName
+                                      (appProvider.riderName.trim().isEmpty
+                                              ? riderName
+                                              : appProvider.riderName)
                                           .split(' ')
                                           .map((e) => e[0])
                                           .join()
@@ -129,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     Text(
-                                      appProvider.riderName.split(' ').first,
+                                      riderName.split(' ').first,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -541,7 +546,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Start Work Session',
+                                          appProvider.isSessionActive
+                                              ? 'Session Active'
+                                              : 'Start Work Session',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -551,7 +558,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Tap to begin GPS tracking',
+                                          appProvider.isSessionActive
+                                              ? 'Live tracking in progress'
+                                              : 'Tap to begin GPS tracking',
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
@@ -559,6 +568,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                             fontFamily: 'Poppins',
                                           ),
                                         ),
+                                        if (appProvider.isSessionActive &&
+                                            appProvider.sessionStart !=
+                                                null) ...[
+                                          const SizedBox(height: 6),
+                                          StreamBuilder<int>(
+                                            stream: Stream.periodic(
+                                              const Duration(seconds: 1),
+                                              (count) => count,
+                                            ),
+                                            builder: (context, _) {
+                                              final elapsed = DateTime.now()
+                                                  .difference(
+                                                    appProvider.sessionStart!,
+                                                  );
+                                              final hours = elapsed.inHours
+                                                  .toString()
+                                                  .padLeft(2, '0');
+                                              final minutes =
+                                                  (elapsed.inMinutes % 60)
+                                                      .toString()
+                                                      .padLeft(2, '0');
+                                              final seconds =
+                                                  (elapsed.inSeconds % 60)
+                                                      .toString()
+                                                      .padLeft(2, '0');
+                                              return Text(
+                                                '$hours:$minutes:$seconds',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF10B981),
+                                                  fontFamily: 'Poppins',
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),

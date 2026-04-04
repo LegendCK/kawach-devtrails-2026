@@ -255,6 +255,103 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _reputationCard({
+    required int score,
+    required String tier,
+    required int weeklySavings,
+  }) {
+    final progress = (score / 100).clamp(0, 1).toDouble();
+    final tierColor = tier == 'Gold'
+        ? const Color(0xFFF59E0B)
+        : const Color(0xFF94A3B8);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: KawachColors.surfaceOne,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: KawachColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 74,
+            height: 74,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 7,
+                  backgroundColor: KawachColors.borderSubtle,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    KawachColors.indigo,
+                  ),
+                ),
+                Text(
+                  '$score',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: KawachColors.textPrimary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Insurance Reputation Score',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: KawachColors.textPrimary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: tierColor.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '$tier tier',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: tierColor,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your score: $score · You save Rs. $weeklySavings this week',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: KawachColors.textSecondary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(
@@ -269,6 +366,15 @@ class ProfileScreen extends StatelessWidget {
             ? (mockRider['platform'] as String)
             : appProvider.riderPlatform;
         final recentClaims = appProvider.claims.take(2).toList();
+        final paidClaims = appProvider.claims
+            .where((claim) => (claim['status'] as String? ?? 'Paid') == 'Paid')
+            .length;
+        final reputationScore = (88 + (paidClaims >= 3 ? 3 : paidClaims)).clamp(
+          80,
+          96,
+        );
+        final reputationTier = reputationScore >= 90 ? 'Gold' : 'Silver';
+        final weeklySavings = reputationScore >= 90 ? 5 : 3;
 
         return Scaffold(
           backgroundColor: KawachColors.background,
@@ -363,6 +469,58 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+                _reputationCard(
+                  score: reputationScore,
+                  tier: reputationTier,
+                  weeklySavings: weeklySavings,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: KawachColors.surfaceOne,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: KawachColors.borderSubtle),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sectionTitle('Zone', 'Current rider location context.'),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _statTile(
+                              label: 'Zone name',
+                              value: mockRider['zoneName'] as String,
+                              icon: Icons.location_on_outlined,
+                              color: KawachColors.indigoLight,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _statTile(
+                              label: 'Risk level',
+                              value: appProvider.riskBand,
+                              icon: Icons.warning_amber_outlined,
+                              color: const Color(0xFFF59E0B),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Zone ID: ${mockRider['zoneId']}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: KawachColors.textMuted,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -421,6 +579,24 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () {
+                            appProvider.purchasePolicy();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Policy renewed for another 7 days.',
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('Renew policy'),
+                        ),
                       ),
                     ],
                   ),
@@ -619,6 +795,89 @@ class ProfileScreen extends StatelessWidget {
                             );
                           }).toList(),
                         ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: KawachColors.surfaceOne,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: KawachColors.borderSubtle),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sectionTitle(
+                        'How Kawach Works',
+                        'Your policy logic in 4 steps.',
+                      ),
+                      const SizedBox(height: 8),
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: const Text('1. Start your work session'),
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              'GPS session validates zone presence before claim eligibility is evaluated.',
+                              style: TextStyle(
+                                color: KawachColors.textMuted,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: const Text('2. Disruption is detected'),
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              'Rainfall, heat, AQI, and severity signals determine whether threshold conditions are met.',
+                              style: TextStyle(
+                                color: KawachColors.textMuted,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: const Text('3. Hybrid score is calculated'),
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              'Income deviation, activity drop, and env score are combined into a single payout score.',
+                              style: TextStyle(
+                                color: KawachColors.textMuted,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: const Text('4. Payout is capped and credited'),
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Text(
+                              'Payout is capped by lost-hour limit, per-event cap, and weekly coverage remaining.',
+                              style: TextStyle(
+                                color: KawachColors.textMuted,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

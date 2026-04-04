@@ -16,8 +16,22 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
   bool _termsAccepted = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AppProvider>().syncSelectedTierPremium();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
+    final basicPremium = appProvider.premiumQuoteForTier('Basic');
+    final standardPremium = appProvider.premiumQuoteForTier('Standard');
+    final premiumPremium = appProvider.premiumQuoteForTier('Premium');
+    final standardVsBasic = (standardPremium - basicPremium).clamp(0, 9999);
+    final premiumVsStandard = (premiumPremium - standardPremium).clamp(0, 9999);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,16 +58,17 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
           const SizedBox(height: 16),
           _PolicyCard(
             title: 'Basic',
-            premium: 20,
+            premium: basicPremium,
             cover: 1200,
             events: const ['Heavy Rainfall', 'Urban Flooding', 'Extreme Heat'],
+            priceDiffLabel: 'Entry cover',
             selected: appProvider.selectedPolicyTier == 'Basic',
             onTap: () => appProvider.selectPolicyTier('Basic'),
           ),
           const SizedBox(height: 12),
           _PolicyCard(
             title: 'Standard',
-            premium: 35,
+            premium: standardPremium,
             cover: 1600,
             events: const [
               'Heavy Rainfall',
@@ -61,6 +76,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
               'Extreme Heat',
               'Severe AQI',
             ],
+            priceDiffLabel: '+Rs. $standardVsBasic vs Basic',
             selected: appProvider.selectedPolicyTier == 'Standard',
             highlight: true,
             onTap: () => appProvider.selectPolicyTier('Standard'),
@@ -68,7 +84,7 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
           const SizedBox(height: 12),
           _PolicyCard(
             title: 'Premium',
-            premium: 50,
+            premium: premiumPremium,
             cover: 2000,
             events: const [
               'Heavy Rainfall',
@@ -77,8 +93,16 @@ class _PolicySelectionScreenState extends State<PolicySelectionScreen> {
               'Severe AQI',
               'Thunderstorm',
             ],
+            priceDiffLabel: '+Rs. $premiumVsStandard vs Standard',
             selected: appProvider.selectedPolicyTier == 'Premium',
             onTap: () => appProvider.selectPolicyTier('Premium'),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Price includes zone risk loading, policy tier loading, platform fee, tax, and rider reputation adjustment.',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
           ),
           const SizedBox(height: 10),
           Row(
@@ -364,6 +388,7 @@ class _PolicyCard extends StatelessWidget {
     required this.premium,
     required this.cover,
     required this.events,
+    required this.priceDiffLabel,
     required this.selected,
     required this.onTap,
     this.highlight = false,
@@ -373,6 +398,7 @@ class _PolicyCard extends StatelessWidget {
   final int premium;
   final int cover;
   final List<String> events;
+  final String priceDiffLabel;
   final bool selected;
   final bool highlight;
   final VoidCallback onTap;
@@ -409,6 +435,13 @@ class _PolicyCard extends StatelessWidget {
             Text(
               'Rs. $premium/week',
               style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              priceDiffLabel,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: KawachColors.textMuted),
             ),
             const SizedBox(height: 4),
             Text(

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants.dart';
 
 class AppProvider extends ChangeNotifier {
+  static const String _storageKey = 'kawach_app_state_v1';
+
   final Set<String> _knownUsers = {'9876543210'};
 
   String riderName = '';
@@ -11,7 +16,7 @@ class AppProvider extends ChangeNotifier {
   bool isRegistered = false;
 
   String selectedPolicyTier = 'Standard';
-  int premium = 35;
+  int premium = 72;
   int coverageLimit = 1600;
   int coverageUsed = 0;
   bool hasPurchasedPolicy = false;
@@ -26,6 +31,10 @@ class AppProvider extends ChangeNotifier {
   DateTime? sessionStart;
 
   List<Map<String, dynamic>> claims = [...mockClaimsHistory];
+
+  AppProvider() {
+    _hydrateState();
+  }
 
   static const Map<String, Set<String>> _tierCoverage = {
     'Basic': {'Heavy Rainfall', 'Urban Flooding', 'Extreme Heat'},
@@ -46,6 +55,97 @@ class AppProvider extends ChangeNotifier {
   };
 
   int get coverageRemaining => coverageLimit - coverageUsed;
+
+  Future<void> _persistState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final payload = {
+      'knownUsers': _knownUsers.toList(),
+      'riderName': riderName,
+      'riderPhone': riderPhone,
+      'riderPlatform': riderPlatform,
+      'isRegistered': isRegistered,
+      'selectedPolicyTier': selectedPolicyTier,
+      'premium': premium,
+      'coverageLimit': coverageLimit,
+      'coverageUsed': coverageUsed,
+      'hasPurchasedPolicy': hasPurchasedPolicy,
+      'policyPurchasedAt': policyPurchasedAt?.toIso8601String(),
+      'rainfallMm': rainfallMm,
+      'temperatureC': temperatureC,
+      'aqi': aqi,
+      'conditionUpdatedAt': conditionUpdatedAt.toIso8601String(),
+      'isSessionActive': isSessionActive,
+      'sessionStart': sessionStart?.toIso8601String(),
+      'claims': claims,
+    };
+    await prefs.setString(_storageKey, jsonEncode(payload));
+  }
+
+  Future<void> _hydrateState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_storageKey);
+    if (raw == null || raw.isEmpty) {
+      return;
+    }
+
+    try {
+      final Map<String, dynamic> payload =
+          jsonDecode(raw) as Map<String, dynamic>;
+
+      final knownUsersRaw = payload['knownUsers'] as List<dynamic>?;
+      if (knownUsersRaw != null) {
+        _knownUsers
+          ..clear()
+          ..addAll(knownUsersRaw.map((e) => e.toString()));
+      }
+
+      riderName = (payload['riderName'] as String?) ?? riderName;
+      riderPhone = (payload['riderPhone'] as String?) ?? riderPhone;
+      riderPlatform = (payload['riderPlatform'] as String?) ?? riderPlatform;
+      isRegistered = (payload['isRegistered'] as bool?) ?? isRegistered;
+
+      selectedPolicyTier =
+          (payload['selectedPolicyTier'] as String?) ?? selectedPolicyTier;
+      premium = (payload['premium'] as int?) ?? premium;
+      coverageLimit = (payload['coverageLimit'] as int?) ?? coverageLimit;
+      coverageUsed = (payload['coverageUsed'] as int?) ?? coverageUsed;
+      hasPurchasedPolicy =
+          (payload['hasPurchasedPolicy'] as bool?) ?? hasPurchasedPolicy;
+
+      final policyPurchasedAtRaw = payload['policyPurchasedAt'] as String?;
+      policyPurchasedAt = policyPurchasedAtRaw == null
+          ? null
+          : DateTime.tryParse(policyPurchasedAtRaw);
+
+      rainfallMm = (payload['rainfallMm'] as num?)?.toDouble() ?? rainfallMm;
+      temperatureC =
+          (payload['temperatureC'] as num?)?.toDouble() ?? temperatureC;
+      aqi = (payload['aqi'] as int?) ?? aqi;
+
+      final updatedAtRaw = payload['conditionUpdatedAt'] as String?;
+      conditionUpdatedAt =
+          DateTime.tryParse(updatedAtRaw ?? '') ?? conditionUpdatedAt;
+
+      isSessionActive =
+          (payload['isSessionActive'] as bool?) ?? isSessionActive;
+      final sessionStartRaw = payload['sessionStart'] as String?;
+      sessionStart = sessionStartRaw == null
+          ? null
+          : DateTime.tryParse(sessionStartRaw);
+
+      final claimsRaw = payload['claims'] as List<dynamic>?;
+      if (claimsRaw != null) {
+        claims = claimsRaw
+            .whereType<Map<String, dynamic>>()
+            .map((claim) => Map<String, dynamic>.from(claim))
+            .toList();
+      }
+
+      notifyListeners();
+    } catch (_) {
+      // Ignore corrupted local state and continue with defaults.
+    }
+  }
 
   String _canonicalDisruption(String disruptionType) {
     final lower = disruptionType.toLowerCase();
@@ -126,8 +226,32 @@ class AppProvider extends ChangeNotifier {
     };
   }
 
-  int get dynamicPremium =>
-      getPremiumFromRiskScore(currentRiskScore.toDouble());
+  int get dynamicPremium => premiumQuoteForTier(selectedPolicyTier);
+
+  int get estimatedReputationScore {
+    final paidClaims = claims
+        .where((claim) => claim['status'] == 'Paid')
+        .length;
+    final score = 84 + (paidClaims >= 4 ? 8 : (paidClaims * 2));
+    return score.clamp(70, 95);
+  }
+
+  int premiumQuoteForTier(String tier) {
+    return calculateWeeklyPremium(
+      tier: tier,
+      riskScore: currentRiskScore.toDouble(),
+      reputationScore: estimatedReputationScore,
+    );
+  }
+
+  void syncSelectedTierPremium() {
+    final next = premiumQuoteForTier(selectedPolicyTier);
+    if (next != premium) {
+      premium = next;
+      notifyListeners();
+      _persistState();
+    }
+  }
 
   String get riskBand {
     final score = currentRiskScore;
@@ -164,11 +288,13 @@ class AppProvider extends ChangeNotifier {
           ? (mockRider['platform'] as String)
           : riderPlatform;
       notifyListeners();
+      _persistState();
       return '/home';
     }
 
     isRegistered = false;
     notifyListeners();
+    _persistState();
     return '/profile-setup';
   }
 
@@ -185,17 +311,15 @@ class AppProvider extends ChangeNotifier {
     isRegistered = true;
     _knownUsers.add(normalizedPhone);
     notifyListeners();
+    _persistState();
   }
 
   void selectPolicyTier(String tier) {
     selectedPolicyTier = tier;
-    premium = tier == 'Basic'
-        ? 20
-        : tier == 'Standard'
-        ? 35
-        : 50;
+    premium = premiumQuoteForTier(tier);
     coverageLimit = getCoverageFromTier(tier);
     notifyListeners();
+    _persistState();
   }
 
   void purchasePolicy() {
@@ -203,6 +327,7 @@ class AppProvider extends ChangeNotifier {
     coverageUsed = 0;
     policyPurchasedAt = DateTime.now();
     notifyListeners();
+    _persistState();
   }
 
   void updateZoneConditions({
@@ -215,26 +340,32 @@ class AppProvider extends ChangeNotifier {
     aqi = currentAqi;
     conditionUpdatedAt = DateTime.now();
     notifyListeners();
+    _persistState();
   }
 
   void startSession() {
     isSessionActive = true;
     sessionStart = DateTime.now();
     notifyListeners();
+    _persistState();
   }
 
   void endSession() {
     isSessionActive = false;
+    sessionStart = null;
     notifyListeners();
+    _persistState();
   }
 
-  void addClaim({
+  String addClaim({
     required String disruptionType,
+    required String zoneName,
     required int payout,
     required double hybridScore,
     required double incomeDeviation,
     required double activityDrop,
     required double envScore,
+    required int lostHours,
   }) {
     final eligibilityError = getClaimEligibilityError(disruptionType);
     if (eligibilityError != null) {
@@ -242,17 +373,21 @@ class AppProvider extends ChangeNotifier {
     }
 
     final canonicalType = _canonicalDisruption(disruptionType);
+    final claimId = 'CLM-${DateTime.now().millisecondsSinceEpoch}';
     claims.insert(0, {
-      'id': 'CLM-${DateTime.now().millisecondsSinceEpoch}',
+      'id': claimId,
       'date': 'Today',
       'type': canonicalType,
+      'zone': zoneName,
       'payout': payout,
-      'status': 'Paid',
+      'status': 'Detected',
+      'pipelineStep': 1,
+      'createdAt': DateTime.now().toIso8601String(),
       'hybridScore': hybridScore,
       'incomeDeviation': incomeDeviation,
       'activityDrop': activityDrop,
       'envScore': envScore,
-      'lostHours': 4,
+      'lostHours': lostHours,
     });
     coverageUsed += payout;
 
@@ -267,5 +402,26 @@ class AppProvider extends ChangeNotifier {
     conditionUpdatedAt = DateTime.now();
 
     notifyListeners();
+    _persistState();
+    return claimId;
+  }
+
+  Future<void> runClaimPipeline(String claimId) async {
+    final statuses = ['Detected', 'Verified', 'Calculating', 'Paid'];
+
+    for (var index = 0; index < statuses.length; index++) {
+      final claimIndex = claims.indexWhere((claim) => claim['id'] == claimId);
+      if (claimIndex == -1) {
+        return;
+      }
+      claims[claimIndex]['status'] = statuses[index];
+      claims[claimIndex]['pipelineStep'] = index + 1;
+      notifyListeners();
+      _persistState();
+
+      if (index < statuses.length - 1) {
+        await Future.delayed(const Duration(milliseconds: 900));
+      }
+    }
   }
 }
